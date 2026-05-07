@@ -1,39 +1,73 @@
 <!DOCTYPE html>
-<html>
+<html lang="pt-br">
 <head>
-  <title>Teste JunBot</title>
+<meta charset="UTF-8">
+<title>JunBot IA</title>
+<style>
+body { background:#111; color:white; font-family:Arial; text-align:center; }
+input,button{padding:10px;width:300px;margin:5px;}
+img{max-width:300px;margin-top:20px;border-radius:10px;}
+</style>
 </head>
 
-<body style="background:#0f172a;color:white;text-align:center;padding:40px;">
+<body>
 
-  <h1>🤖 JunBot Teste</h1>
-  <p>Se você vê isso, o site NÃO está branco</p>
+<h1>🤖 JunBot IA</h1>
 
-  <div id="resposta" style="margin-top:20px;"></div>
+<input id="txt" placeholder="Digite algo">
 
-  <script>
-    window.onload = async () => {
-      document.getElementById("resposta").innerHTML = "Carregando IA...";
+<br>
 
-      try {
-        const res = await fetch("https://junbot-site-1.onrender.com/ia", {
-          method: "POST",
-          headers: {"Content-Type": "application/json"},
-          body: JSON.stringify({text: "oi"})
-        });
+<button onclick="chat()">💬 IA</button>
+<button onclick="img()">🖼️ Imagem</button>
 
-        const data = await res.json();
+<pre id="res"></pre>
+<img id="img"/>
 
-        document.getElementById("resposta").innerHTML =
-          "IA disse: " + data.texto;
+<script>
 
-      } catch (err) {
-        document.getElementById("resposta").innerHTML =
-          "❌ erro ao conectar backend";
-        console.log(err);
-      }
-    };
-  </script>
+const API_KEY = "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";
+
+async function chat(){
+
+let texto = document.getElementById("txt").value;
+
+let r = await fetch("https://api.groq.com/openai/v1/chat/completions", {
+method:"POST",
+headers:{
+"Authorization":"Bearer "+API_KEY,
+"Content-Type":"application/json"
+},
+body: JSON.stringify({
+model:"llama-3.1-8b-instant",
+messages:[{role:"user", content:texto}]
+})
+});
+
+let d = await r.json();
+
+document.getElementById("res").innerText =
+d.choices?.[0]?.message?.content || "erro";
+
+document.getElementById("img").src="";
+}
+
+function img(){
+
+let t = document.getElementById("txt").value;
+
+let seed = Date.now();
+
+let url = "https://image.pollinations.ai/prompt/"
++ encodeURIComponent(t)
++ "?width=1024&height=1024&seed=" + seed;
+
+document.getElementById("img").src = url;
+document.getElementById("res").innerText = "";
+
+}
+
+</script>
 
 </body>
 </html>
