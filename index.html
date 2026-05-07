@@ -1,83 +1,85 @@
 <!DOCTYPE html>
 <html lang="pt-br">
 <head>
-  <meta charset="UTF-8">
-  <title>Minha IA</title>
-  <style>
-    body {
-      margin: 0;
-      font-family: Arial, sans-serif;
-      background: linear-gradient(135deg, #0f172a, #1e293b);
-      color: white;
-      text-align: center;
-    }
+<meta charset="UTF-8">
+<title>JunBot IA</title>
 
-    header {
-      padding: 60px 20px;
-    }
+<style>
+body {
+  font-family: Arial;
+  background: #0f172a;
+  color: white;
+  text-align: center;
+  padding: 30px;
+}
 
-    h1 {
-      font-size: 40px;
-      margin-bottom: 10px;
-    }
+input {
+  width: 60%;
+  padding: 12px;
+  border-radius: 10px;
+  border: none;
+}
 
-    p {
-      font-size: 18px;
-      color: #cbd5e1;
-    }
+button {
+  padding: 12px 20px;
+  margin-top: 10px;
+  border-radius: 10px;
+  border: none;
+  background: #3b82f6;
+  color: white;
+  cursor: pointer;
+}
 
-    .box {
-      margin: 40px auto;
-      max-width: 500px;
-      background: #111827;
-      padding: 20px;
-      border-radius: 15px;
-      box-shadow: 0 0 20px rgba(0,0,0,0.4);
-    }
+.box {
+  margin-top: 20px;
+  background: #111827;
+  padding: 20px;
+  border-radius: 15px;
+  max-width: 600px;
+  margin: auto;
+}
 
-    .btn {
-      display: inline-block;
-      margin-top: 20px;
-      padding: 12px 20px;
-      background: #3b82f6;
-      color: white;
-      text-decoration: none;
-      border-radius: 10px;
-      transition: 0.2s;
-    }
+img {
+  margin-top: 15px;
+  max-width: 100%;
+  border-radius: 10px;
+}
+</style>
 
-    .btn:hover {
-      background: #2563eb;
-    }
-
-    footer {
-      margin-top: 50px;
-      font-size: 14px;
-      color: #94a3b8;
-    }
-  </style>
 </head>
 
 <body>
 
-  <header>
-    <h1>🤖 Minha IA</h1>
-    <p>Uma inteligência criada por mim que ainda está em evolução 🚀</p>
-  </header>
+<h1>🤖 JunBot IA</h1>
 
-  <div class="box">
-    <h2>Sobre</h2>
-    <p>
-      Essa IA está sendo desenvolvida para responder perguntas,
-      aprender novas funções e evoluir com o tempo.
-    </p>
+<input id="texto" placeholder="Digite algo...">
+<br>
+<button onclick="gerar()">Gerar</button>
 
-    <a class="btn" href="#">Testar (em breve)</a>
-  </div>
+<div class="box" id="resposta"></div>
 
-  <footer>
-    Feito por você 😎
-  </footer>
+<script>
+async function gerar() {
+  const texto = document.getElementById("texto").value;
+  const box = document.getElementById("resposta");
+
+  box.innerHTML = "⏳ Pensando...";
+
+  const res = await fetch("http://127.0.0.1:5000/ia", {
+    method: "POST",
+    headers: {"Content-Type": "application/json"},
+    body: JSON.stringify({text: texto})
+  });
+
+  const data = await res.json();
+
+  box.innerHTML = `
+    <h3>Resposta:</h3>
+    <p>${data.texto}</p>
+    <img src="${data.imagem}">
+  `;
+}
+</script>
 
 </body>
 </html>
