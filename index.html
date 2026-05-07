@@ -1,85 +1,21 @@
-<!DOCTYPE html>
-<html lang="pt-br">
-<head>
-<meta charset="UTF-8">
-<title>JunBot IA</title>
-
-<style>
-body {
-  font-family: Arial;
-  background: #0f172a;
-  color: white;
-  text-align: center;
-  padding: 30px;
-}
-
-input {
-  width: 60%;
-  padding: 12px;
-  border-radius: 10px;
-  border: none;
-}
-
-button {
-  padding: 12px 20px;
-  margin-top: 10px;
-  border-radius: 10px;
-  border: none;
-  background: #3b82f6;
-  color: white;
-  cursor: pointer;
-}
-
-.box {
-  margin-top: 20px;
-  background: #111827;
-  padding: 20px;
-  border-radius: 15px;
-  max-width: 600px;
-  margin: auto;
-}
-
-img {
-  margin-top: 15px;
-  max-width: 100%;
-  border-radius: 10px;
-}
-</style>
-
-</head>
-
-<body>
-
-<h1>🤖 JunBot IA</h1>
-
-<input id="texto" placeholder="Digite algo...">
-<br>
-<button onclick="gerar()">Gerar</button>
-
-<div class="box" id="resposta"></div>
-
 <script>
-async function gerar() {
-  const texto = document.getElementById("texto").value;
+window.onload = async () => {
   const box = document.getElementById("resposta");
 
-  box.innerHTML = "⏳ Pensando...";
+  box.innerHTML = "🤖 Iniciando JunBot...";
 
-  const res = await fetch("http://127.0.0.1:5000/ia", {
+  const res = await fetch("https://SEU_BACKEND/ia", {
     method: "POST",
     headers: {"Content-Type": "application/json"},
-    body: JSON.stringify({text: texto})
+    body: JSON.stringify({text: "Diga olá ao usuário"})
   });
 
   const data = await res.json();
 
   box.innerHTML = `
-    <h3>Resposta:</h3>
+    <h3>JunBot diz:</h3>
     <p>${data.texto}</p>
     <img src="${data.imagem}">
   `;
-}
+};
 </script>
-
-</body>
-</html>
