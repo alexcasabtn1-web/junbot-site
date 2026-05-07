@@ -3,11 +3,41 @@
 <head>
 <meta charset="UTF-8">
 <title>JunBot IA</title>
+
 <style>
-body { background:#111; color:white; font-family:Arial; text-align:center; }
-input,button{padding:10px;width:300px;margin:5px;}
-img{max-width:300px;margin-top:20px;border-radius:10px;}
+body{
+background:#111;
+color:white;
+font-family:Arial;
+text-align:center;
+}
+
+input,button{
+padding:10px;
+width:300px;
+margin:5px;
+border-radius:8px;
+border:none;
+}
+
+button{
+cursor:pointer;
+background:#4caf50;
+color:white;
+}
+
+img{
+max-width:300px;
+margin-top:20px;
+border-radius:10px;
+}
+
+#status{
+margin-top:10px;
+color:#aaa;
+}
 </style>
+
 </head>
 
 <body>
@@ -21,6 +51,7 @@ img{max-width:300px;margin-top:20px;border-radius:10px;}
 <button onclick="chat()">💬 IA</button>
 <button onclick="img()">🖼️ Imagem</button>
 
+<div id="status"></div>
 <pre id="res"></pre>
 <img id="img"/>
 
@@ -28,9 +59,20 @@ img{max-width:300px;margin-top:20px;border-radius:10px;}
 
 const API_KEY = "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";
 
+function setStatus(t){
+document.getElementById("status").innerText = t;
+}
+
 async function chat(){
 
 let texto = document.getElementById("txt").value;
+
+if(!texto.trim()){
+alert("Escreve algo!");
+return;
+}
+
+setStatus("🤖 pensando...");
 
 let r = await fetch("https://api.groq.com/openai/v1/chat/completions", {
 method:"POST",
@@ -46,24 +88,38 @@ messages:[{role:"user", content:texto}]
 
 let d = await r.json();
 
+setStatus("");
+
 document.getElementById("res").innerText =
 d.choices?.[0]?.message?.content || "erro";
 
-document.getElementById("img").src="";
+document.getElementById("img").src = "";
 }
 
 function img(){
 
 let t = document.getElementById("txt").value;
 
-let seed = Date.now();
+if(!t.trim()){
+alert("Escreve algo!");
+return;
+}
 
-let url = "https://image.pollinations.ai/prompt/"
-+ encodeURIComponent(t)
-+ "?width=1024&height=1024&seed=" + seed;
+setStatus("🖼️ gerando imagem...");
 
-document.getElementById("img").src = url;
 document.getElementById("res").innerText = "";
+document.getElementById("img").src = "";
+
+// força imagem nova SEMPRE
+let url =
+"https://image.pollinations.ai/prompt/"
++ encodeURIComponent(t)
++ "?width=1024&height=1024&seed=" + Date.now();
+
+setTimeout(()=>{
+document.getElementById("img").src = url;
+setStatus("");
+}, 500);
 
 }
 
