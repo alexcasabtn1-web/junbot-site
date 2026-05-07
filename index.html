@@ -1,22 +1,39 @@
-<script>
-window.onload = async () => {
-  const box = document.getElementById("resposta");
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Teste JunBot</title>
+</head>
 
-  box.innerHTML = "🤖 Iniciando JunBot...";
+<body style="background:#0f172a;color:white;text-align:center;padding:40px;">
 
-  const res = await fetch("https://junbot-site-1.onrender.com/ia", {
-    method: "POST",
-    headers: {"Content-Type": "application/json"},
-    body: JSON.stringify({text: "Diga olá ao usuário"})
-  });
+  <h1>🤖 JunBot Teste</h1>
+  <p>Se você vê isso, o site NÃO está branco</p>
 
-  const data = await res.json();
+  <div id="resposta" style="margin-top:20px;"></div>
 
-  box.innerHTML = `
-    <h3>JunBot diz:</h3>
-    <p>${data.texto}</p>
-    <img src="${data.imagem}">
-  `;
-};
-</script>
+  <script>
+    window.onload = async () => {
+      document.getElementById("resposta").innerHTML = "Carregando IA...";
 
+      try {
+        const res = await fetch("https://junbot-site-1.onrender.com/ia", {
+          method: "POST",
+          headers: {"Content-Type": "application/json"},
+          body: JSON.stringify({text: "oi"})
+        });
+
+        const data = await res.json();
+
+        document.getElementById("resposta").innerHTML =
+          "IA disse: " + data.texto;
+
+      } catch (err) {
+        document.getElementById("resposta").innerHTML =
+          "❌ erro ao conectar backend";
+        console.log(err);
+      }
+    };
+  </script>
+
+</body>
+</html>
