@@ -4,7 +4,7 @@ window.onload = async () => {
 
   box.innerHTML = "🤖 Iniciando JunBot...";
 
-  const res = await fetch("https://SEU_BACKEND/ia", {
+  const res = await fetch("https://junbot-site-1.onrender.com/ia", {
     method: "POST",
     headers: {"Content-Type": "application/json"},
     body: JSON.stringify({text: "Diga olá ao usuário"})
@@ -19,3 +19,4 @@ window.onload = async () => {
   `;
 };
 </script>
+
