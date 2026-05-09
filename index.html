@@ -1,6 +1,223 @@
-<html>
-  <body>
-<s>https://discord.gg/gfYnxYGD7e</s>
-    
-  </body>
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Jogo de Desenhar</title>
+
+<style>
+body {
+  margin: 0;
+  background: #111;
+  color: white;
+  font-family: Arial, sans-serif;
+  text-align: center;
+}
+
+h1 {
+  margin: 14px 0;
+}
+
+.toolbar {
+  padding: 12px;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 10px;
+  align-items: center;
+}
+
+canvas {
+  background: white;
+  border: 2px solid white;
+  border-radius: 10px;
+  cursor: crosshair;
+  margin-bottom: 20px;
+}
+
+button, input {
+  padding: 8px 12px;
+  border: none;
+  border-radius: 8px;
+}
+
+button {
+  cursor: pointer;
+}
+
+label {
+  font-size: 14px;
+}
+
+#status {
+  font-size: 14px;
+  opacity: 0.9;
+}
+
+#inicio {
+  margin-top: 40px;
+}
+
+.hidden {
+  display: none;
+}
+</style>
+</head>
+<body>
+
+<h1>🎨 Paint Melhorado</h1>
+
+<div id="inicio">
+  <h2>Escolha como começar</h2>
+
+  <label>
+    Largura:
+    <input type="number" id="largura" value="900">
+  </label>
+
+  <label>
+    Altura:
+    <input type="number" id="altura" value="500">
+  </label>
+
+  <br><br>
+
+  <button onclick="modoDesenhar()">🖌️ Desenhar</button>
+
+  <label style="cursor:pointer;">
+    <button onclick="document.getElementById('upload').click()">🖼️ Importar Imagem</button>
+  </label>
+
+  <input type="file" id="upload" accept="image/*" class="hidden">
+</div>
+
+<div id="editor" class="hidden">
+  <div class="toolbar">
+    <input type="color" id="cor" value="#000000">
+
+    <label>
+      Tamanho:
+      <input type="range" id="tamanho" min="1" max="50" value="5">
+    </label>
+
+    <span id="status">Pincel: 5px</span>
+
+    <button onclick="modoPincel()">🖌️ Pincel</button>
+    <button onclick="modoBorracha()">🧽 Borracha</button>
+    <button onclick="limpar()">🧹 Limpar</button>
+    <button onclick="salvar()">💾 Salvar</button>
+  </div>
+
+  <canvas id="tela"></canvas>
+</div>
+
+<script>
+const canvas = document.getElementById("tela");
+const ctx = canvas.getContext("2d");
+const corInput = document.getElementById("cor");
+const tamanhoInput = document.getElementById("tamanho");
+const statusTexto = document.getElementById("status");
+const upload = document.getElementById("upload");
+
+let desenhando = false;
+let usandoBorracha = false;
+
+function abrirEditor() {
+  document.getElementById("inicio").classList.add("hidden");
+  document.getElementById("editor").classList.remove("hidden");
+}
+
+function atualizarStatus() {
+  const valor = tamanhoInput.value;
+  statusTexto.innerText = `${usandoBorracha ? "Borracha" : "Pincel"}: ${valor}px`;
+}
+
+function modoPincel() {
+  usandoBorracha = false;
+  atualizarStatus();
+}
+
+function modoBorracha() {
+  usandoBorracha = true;
+  atualizarStatus();
+}
+
+function modoDesenhar() {
+  const largura = parseInt(document.getElementById("largura").value) || 900;
+  const altura = parseInt(document.getElementById("altura").value) || 500;
+
+  canvas.width = largura;
+  canvas.height = altura;
+
+  abrirEditor();
+  atualizarStatus();
+}
+
+upload.addEventListener("change", function(event) {
+  const file = event.target.files[0];
+  if (!file) return;
+
+  const img = new Image();
+  const reader = new FileReader();
+
+  reader.onload = function(e) {
+    img.src = e.target.result;
+  };
+
+  img.onload = function() {
+    canvas.width = img.width;
+    canvas.height = img.height;
+
+    abrirEditor();
+    ctx.drawImage(img, 0, 0);
+    atualizarStatus();
+  };
+
+  reader.readAsDataURL(file);
+});
+
+canvas.addEventListener("mousedown", () => {
+  desenhando = true;
+});
+
+canvas.addEventListener("mouseup", () => {
+  desenhando = false;
+  ctx.beginPath();
+});
+
+canvas.addEventListener("mouseleave", () => {
+  desenhando = false;
+  ctx.beginPath();
+});
+
+canvas.addEventListener("mousemove", desenhar);
+
+function desenhar(e) {
+  if (!desenhando) return;
+
+  ctx.lineWidth = tamanhoInput.value;
+  ctx.lineCap = "round";
+  ctx.strokeStyle = usandoBorracha ? "white" : corInput.value;
+
+  ctx.lineTo(e.offsetX, e.offsetY);
+  ctx.stroke();
+  ctx.beginPath();
+  ctx.moveTo(e.offsetX, e.offsetY);
+}
+
+function limpar() {
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+}
+
+function salvar() {
+  const link = document.createElement("a");
+  link.download = "meu-desenho.png";
+  link.href = canvas.toDataURL("image/png");
+  link.click();
+}
+
+tamanhoInput.addEventListener("input", atualizarStatus);
+</script>
+
+</body>
 </html>
