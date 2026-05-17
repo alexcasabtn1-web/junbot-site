@@ -3,171 +3,28 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Loja de Jogos - Matemática para Anime</title>
-  <style>
-    * {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
-      font-family: Arial, sans-serif;
-    }
-
-    body {
-      background: #f5f5f5;
-    }
-
-    header {
-      background: #111;
-      color: white;
-      padding: 20px;
-      text-align: center;
-    }
-
-    nav {
-      background: #222;
-      padding: 12px;
-      text-align: center;
-    }
-
-    nav a {
-      color: white;
-      text-decoration: none;
-      margin: 0 15px;
-      font-weight: bold;
-    }
-
-    .container {
-      max-width: 1000px;
-      margin: 30px auto;
-      padding: 20px;
-    }
-
-    .card {
-      background: white;
-      border-radius: 12px;
-      padding: 20px;
-      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-      margin-bottom: 20px;
-    }
-
-    button {
-      background: #28a745;
-      color: white;
-      border: none;
-      padding: 12px 20px;
-      border-radius: 8px;
-      cursor: pointer;
-      font-size: 16px;
-    }
-
-    button:hover {
-      background: #218838;
-    }
-
-    .esgotado {
-      background: #dc3545;
-    }
-
-    .hidden {
-      display: none;
-    }
-
-    .pix-box {
-      background: #eef;
-      padding: 15px;
-      border-radius: 10px;
-      margin-top: 15px;
-    }
-
-    .success {
-      color: green;
-      font-weight: bold;
-      margin-top: 15px;
-    }
-  </style>
+  <title>Loja de Contas</title>
 </head>
 <body>
+  <h1>Loja - Matemática para Anime</h1>
+  <p>Preço: R$ 1,00</p>
+  <button onclick="comprar()">Comprar</button>
 
-<header>
-  <h1>Loja de Jogos</h1>
-  <p>Venda de contas Roblox</p>
-</header>
+  <script>
+    async function comprar() {
+      const res = await fetch("http://localhost:3000/comprar", {
+        method: "POST"
+      });
 
-<nav>
-  <a href="#">Vendas</a>
-  <a href="#">Jogos</a>
-</nav>
+      const data = await res.json();
 
-<div class="container">
-
-  <div class="card">
-    <h2>Matemática para Anime</h2>
-    <p>Conta especial do Roblox</p>
-    <p><strong>Preço:</strong> R$ 1,00</p>
-    <p><strong>Status:</strong> <span id="status">Disponível</span></p>
-
-    <button id="buyBtn" onclick="comprarConta()">Comprar Conta</button>
-
-    <div id="pixArea" class="pix-box hidden">
-      <p><strong>PIX Copia e Cola:</strong></p>
-      <p id="pixCode">SEU PIX AQUI</p>
-
-      <br>
-      <button onclick="simularPagamento()">Já Paguei</button>
-      <p style="margin-top:10px;">(Sistema de teste)</p>
-    </div>
-
-    <p id="msg" class="success"></p>
-  </div>
-
-</div>
-
-<script>
-  const contas = {
-    matematicaAnime: {
-      usuario: "ContaAnime123",
-      senha: "SenhaSegura456",
-      disponivel: true
+      if (data.status === "aguardando") {
+        alert("Faça o PIX e depois confirme o pagamento.");
+        window.location.href = "sucesso.html";
+      } else {
+        alert(data.msg);
+      }
     }
-  };
-
-  function comprarConta() {
-    if (!contas.matematicaAnime.disponivel) {
-      alert("Produto esgotado.");
-      return;
-    }
-
-    document.getElementById("pixArea").classList.remove("hidden");
-  }
-
-  function simularPagamento() {
-    const conta = contas.matematicaAnime;
-
-    if (!conta.disponivel) {
-      alert("Essa conta já foi vendida.");
-      return;
-    }
-
-    conta.disponivel = false;
-
-    document.getElementById("status").innerText = "Esgotado";
-    document.getElementById("buyBtn").innerText = "Esgotado";
-    document.getElementById("buyBtn").classList.add("esgotado");
-    document.getElementById("buyBtn").disabled = true;
-
-    localStorage.setItem("ultimaCompra", JSON.stringify({
-      nome: "Matemática para Anime",
-      usuario: conta.usuario,
-      senha: conta.senha
-    }));
-
-    document.getElementById("msg").innerText = "Pagamento confirmado! Redirecionando...";
-
-    setTimeout(() => {
-      window.location.href = "sucesso.html";
-    }, 2000);
-  }
-</script>
-
+  </script>
 </body>
 </html>
