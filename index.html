@@ -1,222 +1,172 @@
 <!DOCTYPE html>
-<html lang="pt-br">
+<html lang="pt-BR">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Jogo de Desenhar</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Loja de Jogos - Matemática para Anime</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: Arial, sans-serif;
+    }
 
-<style>
-body {
-  margin: 0;
-  background: #111;
-  color: white;
-  font-family: Arial, sans-serif;
-  text-align: center;
-}
+    body {
+      background: #f5f5f5;
+    }
 
-h1 {
-  margin: 14px 0;
-}
+    header {
+      background: #111;
+      color: white;
+      padding: 20px;
+      text-align: center;
+    }
 
-.toolbar {
-  padding: 12px;
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: center;
-  gap: 10px;
-  align-items: center;
-}
+    nav {
+      background: #222;
+      padding: 12px;
+      text-align: center;
+    }
 
-canvas {
-  background: white;
-  border: 2px solid white;
-  border-radius: 10px;
-  cursor: crosshair;
-  margin-bottom: 20px;
-}
+    nav a {
+      color: white;
+      text-decoration: none;
+      margin: 0 15px;
+      font-weight: bold;
+    }
 
-button, input {
-  padding: 8px 12px;
-  border: none;
-  border-radius: 8px;
-}
+    .container {
+      max-width: 1000px;
+      margin: 30px auto;
+      padding: 20px;
+    }
 
-button {
-  cursor: pointer;
-}
+    .card {
+      background: white;
+      border-radius: 12px;
+      padding: 20px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+      margin-bottom: 20px;
+    }
 
-label {
-  font-size: 14px;
-}
+    button {
+      background: #28a745;
+      color: white;
+      border: none;
+      padding: 12px 20px;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 16px;
+    }
 
-#status {
-  font-size: 14px;
-  opacity: 0.9;
-}
+    button:hover {
+      background: #218838;
+    }
 
-#inicio {
-  margin-top: 40px;
-}
+    .esgotado {
+      background: #dc3545;
+    }
 
-.hidden {
-  display: none;
-}
-</style>
+    .hidden {
+      display: none;
+    }
+
+    .pix-box {
+      background: #eef;
+      padding: 15px;
+      border-radius: 10px;
+      margin-top: 15px;
+    }
+
+    .success {
+      color: green;
+      font-weight: bold;
+      margin-top: 15px;
+    }
+  </style>
 </head>
 <body>
 
-<h1>🎨 Paint Melhorado</h1>
+<header>
+  <h1>Loja de Jogos</h1>
+  <p>Venda de contas Roblox</p>
+</header>
 
-<div id="inicio">
-  <h2>Escolha como começar</h2>
+<nav>
+  <a href="#">Vendas</a>
+  <a href="#">Jogos</a>
+</nav>
 
-  <label>
-    Largura:
-    <input type="number" id="largura" value="900">
-  </label>
+<div class="container">
 
-  <label>
-    Altura:
-    <input type="number" id="altura" value="500">
-  </label>
+  <div class="card">
+    <h2>Matemática para Anime</h2>
+    <p>Conta especial do Roblox</p>
+    <p><strong>Preço:</strong> R$ 1,00</p>
+    <p><strong>Status:</strong> <span id="status">Disponível</span></p>
 
-  <br><br>
+    <button id="buyBtn" onclick="comprarConta()">Comprar Conta</button>
 
-  <button onclick="modoDesenhar()">🖌️ Desenhar</button>
+    <div id="pixArea" class="pix-box hidden">
+      <p><strong>PIX Copia e Cola:</strong></p>
+      <p id="pixCode">SEU PIX AQUI</p>
 
-  <label style="cursor:pointer;">
-    <button onclick="document.getElementById('upload').click()">🖼️ Importar Imagem</button>
-  </label>
+      <br>
+      <button onclick="simularPagamento()">Já Paguei</button>
+      <p style="margin-top:10px;">(Sistema de teste)</p>
+    </div>
 
-  <input type="file" id="upload" accept="image/*" class="hidden">
-</div>
-
-<div id="editor" class="hidden">
-  <div class="toolbar">
-    <input type="color" id="cor" value="#000000">
-
-    <label>
-      Tamanho:
-      <input type="range" id="tamanho" min="1" max="50" value="5">
-    </label>
-
-    <span id="status">Pincel: 5px</span>
-
-    <button onclick="modoPincel()">🖌️ Pincel</button>
-    <button onclick="modoBorracha()">🧽 Borracha</button>
-    <button onclick="limpar()">🧹 Limpar</button>
-    <button onclick="salvar()">💾 Salvar</button>
+    <p id="msg" class="success"></p>
   </div>
 
-  <canvas id="tela"></canvas>
 </div>
 
 <script>
-const canvas = document.getElementById("tela");
-const ctx = canvas.getContext("2d");
-const corInput = document.getElementById("cor");
-const tamanhoInput = document.getElementById("tamanho");
-const statusTexto = document.getElementById("status");
-const upload = document.getElementById("upload");
-
-let desenhando = false;
-let usandoBorracha = false;
-
-function abrirEditor() {
-  document.getElementById("inicio").classList.add("hidden");
-  document.getElementById("editor").classList.remove("hidden");
-}
-
-function atualizarStatus() {
-  const valor = tamanhoInput.value;
-  statusTexto.innerText = `${usandoBorracha ? "Borracha" : "Pincel"}: ${valor}px`;
-}
-
-function modoPincel() {
-  usandoBorracha = false;
-  atualizarStatus();
-}
-
-function modoBorracha() {
-  usandoBorracha = true;
-  atualizarStatus();
-}
-
-function modoDesenhar() {
-  const largura = parseInt(document.getElementById("largura").value) || 900;
-  const altura = parseInt(document.getElementById("altura").value) || 500;
-
-  canvas.width = largura;
-  canvas.height = altura;
-
-  abrirEditor();
-  atualizarStatus();
-}
-
-upload.addEventListener("change", function(event) {
-  const file = event.target.files[0];
-  if (!file) return;
-
-  const img = new Image();
-  const reader = new FileReader();
-
-  reader.onload = function(e) {
-    img.src = e.target.result;
+  const contas = {
+    matematicaAnime: {
+      usuario: "ContaAnime123",
+      senha: "SenhaSegura456",
+      disponivel: true
+    }
   };
 
-  img.onload = function() {
-    canvas.width = img.width;
-    canvas.height = img.height;
+  function comprarConta() {
+    if (!contas.matematicaAnime.disponivel) {
+      alert("Produto esgotado.");
+      return;
+    }
 
-    abrirEditor();
-    ctx.drawImage(img, 0, 0);
-    atualizarStatus();
-  };
+    document.getElementById("pixArea").classList.remove("hidden");
+  }
 
-  reader.readAsDataURL(file);
-});
+  function simularPagamento() {
+    const conta = contas.matematicaAnime;
 
-canvas.addEventListener("mousedown", () => {
-  desenhando = true;
-});
+    if (!conta.disponivel) {
+      alert("Essa conta já foi vendida.");
+      return;
+    }
 
-canvas.addEventListener("mouseup", () => {
-  desenhando = false;
-  ctx.beginPath();
-});
+    conta.disponivel = false;
 
-canvas.addEventListener("mouseleave", () => {
-  desenhando = false;
-  ctx.beginPath();
-});
+    document.getElementById("status").innerText = "Esgotado";
+    document.getElementById("buyBtn").innerText = "Esgotado";
+    document.getElementById("buyBtn").classList.add("esgotado");
+    document.getElementById("buyBtn").disabled = true;
 
-canvas.addEventListener("mousemove", desenhar);
+    localStorage.setItem("ultimaCompra", JSON.stringify({
+      nome: "Matemática para Anime",
+      usuario: conta.usuario,
+      senha: conta.senha
+    }));
 
-function desenhar(e) {
-  if (!desenhando) return;
+    document.getElementById("msg").innerText = "Pagamento confirmado! Redirecionando...";
 
-  ctx.lineWidth = tamanhoInput.value;
-  ctx.lineCap = "round";
-  ctx.strokeStyle = usandoBorracha ? "white" : corInput.value;
-
-  ctx.lineTo(e.offsetX, e.offsetY);
-  ctx.stroke();
-  ctx.beginPath();
-  ctx.moveTo(e.offsetX, e.offsetY);
-}
-
-function limpar() {
-  ctx.clearRect(0, 0, canvas.width, canvas.height);
-}
-
-function salvar() {
-  const link = document.createElement("a");
-  link.download = "meu-desenho.png";
-  link.href = canvas.toDataURL("image/png");
-  link.click();
-}
-
-tamanhoInput.addEventListener("input", atualizarStatus);
+    setTimeout(() => {
+      window.location.href = "sucesso.html";
+    }, 2000);
+  }
 </script>
 
 </body>
