@@ -1,47 +1,100 @@
 <!DOCTYPE html>
-<html lang="pt-BR">
+<html lang="pt-br">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Loja - Matemática para Anime</title>
+<meta charset="UTF-8">
+<title>Key System</title>
+
+<style>
+    body {
+        background: #0f0f1a;
+        color: white;
+        font-family: Arial;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        height: 100vh;
+    }
+
+    .box {
+        background: #1c1c2e;
+        padding: 20px;
+        border-radius: 12px;
+        width: 300px;
+        box-shadow: 0 0 15px rgba(0,0,0,0.5);
+    }
+
+    input {
+        width: 100%;
+        padding: 8px;
+        margin: 8px 0;
+        border-radius: 6px;
+        border: none;
+        outline: none;
+    }
+
+    button {
+        width: 100%;
+        padding: 10px;
+        margin-top: 8px;
+        border: none;
+        border-radius: 6px;
+        cursor: pointer;
+        background: #4c7dff;
+        color: white;
+        font-weight: bold;
+    }
+
+    button:hover {
+        background: #3a66d6;
+    }
+
+    .label {
+        margin-top: 10px;
+        font-size: 14px;
+        opacity: 0.8;
+    }
+</style>
 </head>
+
 <body>
 
-  <h1>Loja - Matemática para Anime</h1>
+<div class="box">
 
-  <p><strong>Preço:</strong> R$ 1,00</p>
+    <div class="label">tvVer:</div>
+    <input id="tvVer" placeholder="digite test">
 
-  <p id="status">
-    <strong>Status:</strong> Em estoque
-  </p>
+    <div class="label">txConta:</div>
+    <input id="txConta" placeholder="resultado" readonly>
 
-  <button id="btnComprar" onclick="comprar()">
-    Comprar Conta
-  </button>
+    <button id="btVer">Verificar</button>
 
-  <script>
-    async function comprar() {
-      const res = await fetch("http://localhost:3000/comprar", {
-        method: "POST"
-      });
+    <hr>
 
-      const data = await res.json();
+    <div class="label">txVer:</div>
+    <input id="txVer" value="oi" readonly>
 
-      if (data.status === "aguardando") {
-        document.getElementById("status").innerHTML =
-          "<strong>Status:</strong> Esgotado";
+    <button id="btCopiar">Copiar</button>
 
-        document.getElementById("btnComprar").disabled = true;
-        document.getElementById("btnComprar").innerText = "Esgotado";
+</div>
 
-        alert("Compra realizada com sucesso!");
+<script>
+    // btCopiar copia "oi"
+    document.getElementById("btCopiar").onclick = function() {
+        navigator.clipboard.writeText("oi");
+        alert("Copiado: oi");
+    };
 
-        window.location.href = "sucesso.html";
-      } else {
-        alert(data.msg);
-      }
-    }
-  </script>
+    // btVer verifica tvVer
+    document.getElementById("btVer").onclick = function() {
+        let valor = document.getElementById("tvVer").value;
+
+        if (valor === "test") {
+            document.getElementById("txConta").value = "iue";
+        } else {
+            document.getElementById("txConta").value = "errado";
+        }
+    };
+</script>
 
 </body>
 </html>
