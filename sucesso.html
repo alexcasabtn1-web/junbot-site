@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<title>Compra Concluída</title>
+<style>
+  body {
+    font-family: Arial;
+    background: #f5f5f5;
+    text-align: center;
+    padding: 50px;
+  }
+
+  .box {
+    background: white;
+    padding: 30px;
+    border-radius: 12px;
+    max-width: 500px;
+    margin: auto;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+  }
+
+  h1 {
+    color: green;
+  }
+</style>
+</head>
+<body>
+
+<div class="box">
+  <h1>Compra concluída com sucesso</h1>
+  <div id="dados"></div>
+</div>
+
+<script>
+const compra = JSON.parse(localStorage.getItem("ultimaCompra"));
+
+if (compra) {
+  document.getElementById("dados").innerHTML = `
+    <h2>${compra.nome}</h2>
+    <p><strong>Usuário:</strong> ${compra.usuario}</p>
+    <p><strong>Senha:</strong> ${compra.senha}</p>
+  `;
+}
+</script>
+
+</body>
+</html>
