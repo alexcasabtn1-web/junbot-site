@@ -2,13 +2,15 @@
 <html lang="pt-br">
 <head>
 <meta charset="UTF-8">
-<title>Key System</title>
+<title>Key System Bonito</title>
 
 <style>
     body {
-        background: #0f0f1a;
+        margin: 0;
+        padding: 0;
+        background: linear-gradient(135deg, #111, #1e1e2f);
+        font-family: Arial, sans-serif;
         color: white;
-        font-family: Arial;
         display: flex;
         justify-content: center;
         align-items: center;
@@ -16,82 +18,105 @@
     }
 
     .box {
-        background: #1c1c2e;
-        padding: 20px;
-        border-radius: 12px;
-        width: 300px;
-        box-shadow: 0 0 15px rgba(0,0,0,0.5);
+        background: rgba(255,255,255,0.05);
+        padding: 30px;
+        border-radius: 20px;
+        width: 380px;
+        text-align: center;
+        box-shadow: 0 0 20px rgba(0,0,0,0.5);
+        backdrop-filter: blur(10px);
+    }
+
+    h2 {
+        font-size: 22px;
+        margin-bottom: 20px;
+    }
+
+    p {
+        font-size: 15px;
+        margin-bottom: 20px;
+        color: #ddd;
     }
 
     input {
         width: 100%;
-        padding: 8px;
-        margin: 8px 0;
-        border-radius: 6px;
+        padding: 12px;
         border: none;
+        border-radius: 10px;
         outline: none;
+        font-size: 15px;
+        margin-top: 10px;
+        box-sizing: border-box;
     }
 
     button {
         width: 100%;
-        padding: 10px;
-        margin-top: 8px;
+        padding: 12px;
+        margin-top: 15px;
         border: none;
-        border-radius: 6px;
-        cursor: pointer;
+        border-radius: 10px;
         background: #4c7dff;
         color: white;
+        font-size: 15px;
         font-weight: bold;
+        cursor: pointer;
+        transition: 0.2s;
     }
 
     button:hover {
         background: #3a66d6;
+        transform: scale(1.02);
     }
 
-    .label {
-        margin-top: 10px;
-        font-size: 14px;
-        opacity: 0.8;
+    #textoConta {
+        margin-top: 20px;
+        font-size: 18px;
+        font-weight: bold;
+        color: #00ff88;
     }
 </style>
 </head>
-
 <body>
 
 <div class="box">
 
-    <div class="label">tvVer:</div>
-    <input id="tvVer" placeholder="digite test">
+    <h2>Pegue contas de jogos !</h2>
 
-    <div class="label">txConta:</div>
-    <input id="txConta" placeholder="resultado" readonly>
+    <p>Mais antes passe pelo encurtador</p>
 
-    <button id="btVer">Verificar</button>
+    <button id="btCopiar">
+        Pegue a key aqui
+    </button>
 
-    <hr>
+    <input 
+        type="text" 
+        id="tvKey" 
+        placeholder="coloque a key aqui"
+    >
 
-    <div class="label">txVer:</div>
-    <input id="txVer" value="oi" readonly>
+    <button id="btVer">
+        Verificar Key
+    </button>
 
-    <button id="btCopiar">Copiar</button>
+    <div id="textoConta"></div>
 
 </div>
 
 <script>
-    // btCopiar copia "oi"
-    document.getElementById("btCopiar").onclick = function() {
-        navigator.clipboard.writeText("oi");
-        alert("Copiado: oi");
+    // botão copia "test"
+    document.getElementById("btCopiar").onclick = function () {
+        navigator.clipboard.writeText("test");
+        alert("Key copiada: test");
     };
 
-    // btVer verifica tvVer
-    document.getElementById("btVer").onclick = function() {
-        let valor = document.getElementById("tvVer").value;
+    // verifica se a key é KEY
+    document.getElementById("btVer").onclick = function () {
+        let key = document.getElementById("tvKey").value;
 
-        if (valor === "test") {
-            document.getElementById("txConta").value = "iue";
+        if (key === "KEY") {
+            document.getElementById("textoConta").innerText = "parabes";
         } else {
-            document.getElementById("txConta").value = "errado";
+            document.getElementById("textoConta").innerText = "key incorreta";
         }
     };
 </script>
