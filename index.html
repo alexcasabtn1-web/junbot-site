@@ -7,8 +7,9 @@
 </head>
 <body>
   <h1>Loja - Matemática para Anime</h1>
+  <p id="status"><strong>Status:</strong> Em estoque</p>
   <p>Preço: R$ 1,00</p>
-  <button onclick="comprar()">Comprar</button>
+  <button id="btnComprar" onclick="comprar()">Comprar Conta</button>
 
   <script>
     async function comprar() {
@@ -19,6 +20,9 @@
       const data = await res.json();
 
       if (data.status === "aguardando") {
+        document.getElementById("status").innerHTML = "<strong>Status:</strong> Esgotado";
+        document.getElementById("btnComprar").disabled = true;
+        document.getElementById("btnComprar").innerText = "Esgotado";
         alert("Faça o PIX e depois confirme o pagamento.");
         window.location.href = "sucesso.html";
       } else {
