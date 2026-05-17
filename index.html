@@ -3,13 +3,21 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Loja de Contas</title>
+  <title>Loja - Matemática para Anime</title>
 </head>
 <body>
+
   <h1>Loja - Matemática para Anime</h1>
-  <p id="status"><strong>Status:</strong> Em estoque</p>
-  <p>Preço: R$ 1,00</p>
-  <button id="btnComprar" onclick="comprar()">Comprar Conta</button>
+
+  <p><strong>Preço:</strong> R$ 1,00</p>
+
+  <p id="status">
+    <strong>Status:</strong> Em estoque
+  </p>
+
+  <button id="btnComprar" onclick="comprar()">
+    Comprar Conta
+  </button>
 
   <script>
     async function comprar() {
@@ -20,15 +28,20 @@
       const data = await res.json();
 
       if (data.status === "aguardando") {
-        document.getElementById("status").innerHTML = "<strong>Status:</strong> Esgotado";
+        document.getElementById("status").innerHTML =
+          "<strong>Status:</strong> Esgotado";
+
         document.getElementById("btnComprar").disabled = true;
         document.getElementById("btnComprar").innerText = "Esgotado";
-        alert("Faça o PIX e depois confirme o pagamento.");
+
+        alert("Compra realizada com sucesso!");
+
         window.location.href = "sucesso.html";
       } else {
         alert(data.msg);
       }
     }
   </script>
+
 </body>
 </html>
