@@ -1,125 +1,97 @@
 <!DOCTYPE html>
 <html lang="pt-br">
 <head>
+
 <meta charset="UTF-8">
-<title>Key System Accont</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<style>
-    body {
-        margin: 0;
-        padding: 0;
-        background: linear-gradient(135deg, #111, #1e1e2f);
-        font-family: Arial, sans-serif;
-        color: white;
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        height: 100vh;
-    }
+<title>Rainbow AI</title>
 
-    .box {
-        background: rgba(255,255,255,0.05);
-        padding: 30px;
-        border-radius: 20px;
-        width: 380px;
-        text-align: center;
-        box-shadow: 0 0 20px rgba(0,0,0,0.5);
-        backdrop-filter: blur(10px);
-    }
+<link rel="stylesheet" href="style.css">
 
-    h2 {
-        font-size: 22px;
-        margin-bottom: 20px;
-    }
-
-    p {
-        font-size: 15px;
-        margin-bottom: 20px;
-        color: #ddd;
-    }
-
-    input {
-        width: 100%;
-        padding: 12px;
-        border: none;
-        border-radius: 10px;
-        outline: none;
-        font-size: 15px;
-        margin-top: 10px;
-        box-sizing: border-box;
-    }
-
-    button {
-        width: 100%;
-        padding: 12px;
-        margin-top: 15px;
-        border: none;
-        border-radius: 10px;
-        background: #4c7dff;
-        color: white;
-        font-size: 15px;
-        font-weight: bold;
-        cursor: pointer;
-        transition: 0.2s;
-    }
-
-    button:hover {
-        background: #3a66d6;
-        transform: scale(1.02);
-    }
-
-    #textoConta {
-        margin-top: 20px;
-        font-size: 18px;
-        font-weight: bold;
-        color: #00ff88;
-    }
-</style>
 </head>
 <body>
 
-<div class="box">
+<div class="sidebar">
 
-    <h2>Pegue contas de jogos !</h2>
+<div class="logo">
 
-    <p>Mais antes passe pelo encurtador</p>
+<img src="logo.png">
 
-    <button id="btCopiar">
-        Pegue a key aqui
-    </button>
+<h1>Rainbow AI</h1>
 
-    <input 
-        type="text" 
-        id="tvKey" 
-        placeholder="coloque a key aqui"
-    >
-
-    <button id="btVer">
-        Verificar Key
-    </button>
-
-    <div id="textoConta"></div>
+<p>Sua IA Neon 🌈</p>
 
 </div>
 
-<script>
-    // botão copia "test"
-    document.getElementById("btCopiar").onclick = function () {
-        navigator.clipboard.writeText("https://link-hub.net/5832678/m6USwc1xgPhY");
-        alert("Key copiada");
-    };
+<button class="googleBtn" onclick="loginGoogle()">
+Entrar com Google
+</button>
 
-    // verifica se a key é KEY
-    document.getElementById("btVer").onclick = function () {
-        let key = document.getElementById("tvKey").value;
+<div class="history">
 
-        if (key === "km@3QbkgG3LP77r-99AsH-juJHah-Qwe-km@3QbkgG3LP77r") {
-            document.getElementById("textoConta").innerText = "Nome : Brainmath_123 Senha : km@3QbkgG3LP77r";
-        } else {
-            document.getElementById("textoConta").innerText = "key incorreta";
-        }
-    };
-</script>
+<h2>Histórico</h2>
+
+<div id="historyList"></div>
+
+</div>
+
+</div>
+
+<div class="main">
+
+<div class="topbar">
+
+<div class="userInfo">
+
+<img id="userPhoto">
+
+<span id="userName">Sem login</span>
+
+</div>
+
+<button class="logoutBtn" onclick="logout()">
+Sair
+</button>
+
+</div>
+
+<div class="chat" id="chat">
+
+<div class="welcome">
+
+<h1>🌈 Rainbow AI</h1>
+
+<p>
+Converse gratuitamente com memória inteligente
+</p>
+
+</div>
+
+</div>
+
+<div class="inputArea">
+
+<input
+type="text"
+id="messageInput"
+placeholder="Digite algo..."
+>
+
+<button onclick="sendMessage()">
+Enviar
+</button>
+
+</div>
+
+</div>
+
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
+
+<script src="firebase.js"></script>
+<script src="script.js"></script>
 
 </body>
 </html>
