@@ -5,6 +5,10 @@ document.getElementById("chat")
 
 let memory = []
 
+// ======================
+// ADICIONAR MENSAGEM
+// ======================
+
 function addMessage(text,type){
 
 const div =
@@ -22,6 +26,10 @@ chat.scrollHeight
 
 }
 
+// ======================
+// LOGIN GOOGLE
+// ======================
+
 async function loginGoogle(){
 
 const provider =
@@ -29,28 +37,21 @@ new firebase.auth.GoogleAuthProvider()
 
 try{
 
-const result =
-await auth.signInWithPopup(provider)
-
-const user = result.user
-
-currentUser = user
-
-document.getElementById("userName")
-.innerText = user.displayName
-
-document.getElementById("userPhoto")
-.src = user.photoURL
-
-loadHistory()
+await auth.signInWithRedirect(provider)
 
 }catch(err){
 
-alert("Erro login")
+console.log(err)
+
+alert(err.message)
 
 }
 
 }
+
+// ======================
+// LOGOUT
+// ======================
 
 function logout(){
 
@@ -60,7 +61,11 @@ location.reload()
 
 }
 
-auth.onAuthStateChanged(user=>{
+// ======================
+// VERIFICAR LOGIN
+// ======================
+
+auth.onAuthStateChanged(async user=>{
 
 if(user){
 
@@ -78,6 +83,10 @@ loadHistory()
 
 })
 
+// ======================
+// ENVIAR MENSAGEM
+// ======================
+
 async function sendMessage(){
 
 const input =
@@ -88,22 +97,42 @@ input.value
 
 if(!text) return
 
+// MOSTRA MENSAGEM USER
+
 addMessage(text,"user")
 
 memory.push({
+
 role:"user",
 content:text
+
 })
 
 input.value = ""
 
-addMessage("Pensando...","ai")
+// MENSAGEM IA
+
+const thinking =
+document.createElement("div")
+
+thinking.className =
+"message ai"
+
+thinking.innerText =
+"Pensando..."
+
+chat.appendChild(thinking)
+
+chat.scrollTop =
+chat.scrollHeight
 
 try{
 
 const response =
 await fetch(
+
 "https://api.groq.com/openai/v1/chat/completions",
+
 {
 
 method:"POST",
@@ -126,8 +155,10 @@ messages:[
 
 {
 role:"system",
+
 content:
-"Você é Rainbow AI. Seja amigável e lembre das conversas."
+"Você é Rainbow AI. Seja amigável, engraçada, inteligente e lembre das conversas."
+
 },
 
 ...memory
@@ -143,19 +174,23 @@ content:
 const data =
 await response.json()
 
-document.querySelectorAll(".ai")[
-document.querySelectorAll(".ai").length - 1
-].remove()
+thinking.remove()
 
 const reply =
 data.choices[0].message.content
 
 memory.push({
+
 role:"assistant",
 content:reply
+
 })
 
 addMessage(reply,"ai")
+
+// ======================
+// SALVAR FIRESTORE
+// ======================
 
 if(currentUser){
 
@@ -177,11 +212,19 @@ loadHistory()
 
 }catch(err){
 
+thinking.remove()
+
+console.log(err)
+
 addMessage("Erro 😭","ai")
 
 }
 
 }
+
+// ======================
+// CARREGAR HISTÓRICO
+// ======================
 
 async function loadHistory(){
 
@@ -195,6 +238,7 @@ list.innerHTML = ""
 const snapshot =
 await db.collection("chats")
 .where("uid","==",currentUser.uid)
+.orderBy("time","desc")
 .get()
 
 snapshot.forEach(doc=>{
@@ -208,11 +252,16 @@ div.className =
 "historyItem"
 
 div.innerHTML =
-"<b>Você:</b> " + data.user
+
+`
+<b>Você:</b><br>
+${data.user}
+`
 
 div.onclick = ()=>{
 
 addMessage(data.user,"user")
+
 addMessage(data.ai,"ai")
 
 }
@@ -222,3 +271,20 @@ list.appendChild(div)
 })
 
 }
+
+// ======================
+// ENTER PARA ENVIAR
+// ======================
+
+document
+.getElementById("messageInput")
+
+.addEventListener("keypress",function(e){
+
+if(e.key === "Enter"){
+
+sendMessage()
+
+}
+
+})
