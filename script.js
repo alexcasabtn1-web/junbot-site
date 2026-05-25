@@ -28,6 +28,7 @@ chat.scrollHeight
 
 // ======================
 // LOGIN GOOGLE
+
 // ======================
 
 async function loginGoogle(){
@@ -35,9 +36,28 @@ async function loginGoogle(){
 const provider =
 new firebase.auth.GoogleAuthProvider()
 
+provider.setCustomParameters({
+
+prompt:"select_account"
+
+})
+
 try{
 
-await auth.signInWithRedirect(provider)
+const result =
+await auth.signInWithPopup(provider)
+
+const user = result.user
+
+currentUser = user
+
+document.getElementById("userName")
+.innerText = user.displayName
+
+document.getElementById("userPhoto")
+.src = user.photoURL
+
+loadHistory()
 
 }catch(err){
 
@@ -48,19 +68,6 @@ alert(err.message)
 }
 
 }
-
-// ======================
-// LOGOUT
-// ======================
-
-function logout(){
-
-auth.signOut()
-
-location.reload()
-
-}
-
 // ======================
 // VERIFICAR LOGIN
 // ======================
