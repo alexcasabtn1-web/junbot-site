@@ -42,7 +42,10 @@ prompt:"select_account"
 
 try{
 
-await firebase.auth().signInWithRedirect(provider)
+const result =
+await auth.signInWithPopup(provider)
+
+console.log(result.user)
 
 }catch(err){
 
