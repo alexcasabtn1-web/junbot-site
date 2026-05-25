@@ -3,11 +3,13 @@ let currentUser = null
 const chat =
 document.getElementById("chat")
 
+let currentChatId = null
+
 let memory = []
 
-// ======================
+// =====================
 // ADICIONAR MENSAGEM
-// ======================
+// =====================
 
 function addMessage(text,type){
 
@@ -26,10 +28,9 @@ chat.scrollHeight
 
 }
 
-// ======================
-// LOGIN GOOGLE
-
-// ======================
+// =====================
+// LOGIN
+// =====================
 
 async function loginGoogle(){
 
@@ -42,10 +43,7 @@ prompt:"select_account"
 
 try{
 
-const result =
 await auth.signInWithPopup(provider)
-
-console.log(result.user)
 
 }catch(err){
 
@@ -56,11 +54,24 @@ alert(err.message)
 }
 
 }
-// ======================
-// VERIFICAR LOGIN
-// ======================
 
-auth.onAuthStateChanged(async (user)=>{
+// =====================
+// LOGOUT
+// =====================
+
+function logout(){
+
+auth.signOut()
+
+location.reload()
+
+}
+
+// =====================
+// LOGIN STATE
+// =====================
+
+auth.onAuthStateChanged(async(user)=>{
 
 if(user){
 
@@ -72,24 +83,90 @@ document.getElementById("userName")
 document.getElementById("userPhoto")
 .src = user.photoURL
 
-document.getElementById("userPhoto")
-.style.display = "block"
-
-loadHistory()
-
-console.log("LOGADO:",user)
-
-}else{
-
-console.log("DESLOGADO")
+loadChats()
 
 }
 
 })
 
-// ======================
-// ENVIAR MENSAGEM
-// ======================
+// =====================
+// NOVO CHAT
+// =====================
+
+async function createNewChat(firstMessage){
+
+const response =
+await fetch(
+"https://api.groq.com/openai/v1/chat/completions",
+{
+
+method:"POST",
+
+headers:{
+
+"Content-Type":"application/json",
+
+"Authorization":
+"Bearer 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"
+
+},
+
+body:JSON.stringify({
+
+model:
+"meta-llama/llama-4-scout-17b-16e-instruct",
+
+messages:[
+
+{
+role:"system",
+
+content:
+"Crie um título curto para essa conversa."
+
+},
+
+{
+role:"user",
+content:firstMessage
+}
+
+]
+
+})
+
+}
+
+)
+
+const data =
+await response.json()
+
+const title =
+data.choices[0].message.content
+
+const doc =
+await db.collection("chats").add({
+
+uid:currentUser.uid,
+
+title:title,
+
+messages:[],
+
+time:Date.now()
+
+})
+
+currentChatId = doc.id
+
+loadChats()
+
+}
+
+// =====================
+// ENVIAR
+// =====================
 
 async function sendMessage(){
 
@@ -101,7 +178,11 @@ input.value
 
 if(!text) return
 
-// MOSTRA MENSAGEM USER
+if(!currentChatId){
+
+await createNewChat(text)
+
+}
 
 addMessage(text,"user")
 
@@ -114,8 +195,6 @@ content:text
 
 input.value = ""
 
-// MENSAGEM IA
-
 const thinking =
 document.createElement("div")
 
@@ -126,9 +205,6 @@ thinking.innerText =
 "Pensando..."
 
 chat.appendChild(thinking)
-
-chat.scrollTop =
-chat.scrollHeight
 
 try{
 
@@ -161,7 +237,7 @@ messages:[
 role:"system",
 
 content:
-"Você é Rainbow AI. Seja amigável, engraçada, inteligente e lembre das conversas, faça oque o Usuario mandar."
+"Você é Rainbow AI."
 
 },
 
@@ -192,27 +268,15 @@ content:reply
 
 addMessage(reply,"ai")
 
-// ======================
-// SALVAR FIRESTORE
-// ======================
+// SALVAR
 
-if(currentUser){
+await db.collection("chats")
+.doc(currentChatId)
+.update({
 
-await db.collection("chats").add({
-
-uid:currentUser.uid,
-
-user:text,
-
-ai:reply,
-
-time:Date.now()
+messages:memory
 
 })
-
-loadHistory()
-
-}
 
 }catch(err){
 
@@ -226,13 +290,11 @@ addMessage("Erro 😭","ai")
 
 }
 
-// ======================
-// CARREGAR HISTÓRICO
-// ======================
+// =====================
+// CARREGAR CHATS
+// =====================
 
-async function loadHistory(){
-
-if(!currentUser) return
+async function loadChats(){
 
 const list =
 document.getElementById("historyList")
@@ -241,8 +303,18 @@ list.innerHTML = ""
 
 const snapshot =
 await db.collection("chats")
-.where("uid","==",currentUser.uid)
-.orderBy("time","desc")
+
+.where(
+"uid",
+"==",
+currentUser.uid
+)
+
+.orderBy(
+"time",
+"desc"
+)
+
 .get()
 
 snapshot.forEach(doc=>{
@@ -255,18 +327,12 @@ document.createElement("div")
 div.className =
 "historyItem"
 
-div.innerHTML =
-
-`
-<b>Você:</b><br>
-${data.user}
-`
+div.innerText =
+data.title
 
 div.onclick = ()=>{
 
-addMessage(data.user,"user")
-
-addMessage(data.ai,"ai")
+openChat(doc.id)
 
 }
 
@@ -276,9 +342,46 @@ list.appendChild(div)
 
 }
 
-// ======================
-// ENTER PARA ENVIAR
-// ======================
+// =====================
+// ABRIR CHAT
+// =====================
+
+async function openChat(id){
+
+chat.innerHTML = ""
+
+currentChatId = id
+
+const doc =
+await db.collection("chats")
+.doc(id)
+.get()
+
+const data =
+doc.data()
+
+memory =
+data.messages || []
+
+memory.forEach(msg=>{
+
+if(msg.role == "user"){
+
+addMessage(msg.content,"user")
+
+}else{
+
+addMessage(msg.content,"ai")
+
+}
+
+})
+
+}
+
+// =====================
+// ENTER
+// =====================
 
 document
 .getElementById("messageInput")
