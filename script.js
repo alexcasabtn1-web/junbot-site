@@ -57,7 +57,7 @@ alert(err.message)
 // VERIFICAR LOGIN
 // ======================
 
-auth.onAuthStateChanged(async user=>{
+auth.onAuthStateChanged(async (user)=>{
 
 if(user){
 
@@ -69,7 +69,16 @@ document.getElementById("userName")
 document.getElementById("userPhoto")
 .src = user.photoURL
 
+document.getElementById("userPhoto")
+.style.display = "block"
+
 loadHistory()
+
+console.log("LOGADO:",user)
+
+}else{
+
+console.log("DESLOGADO")
 
 }
 
@@ -149,7 +158,7 @@ messages:[
 role:"system",
 
 content:
-"Você é Rainbow AI. Seja amigável, engraçada, inteligente e lembre das conversas."
+"Você é Rainbow AI. Seja amigável, engraçada, inteligente e lembre das conversas, faça oque o Usuario mandar."
 
 },
 
