@@ -37,27 +37,12 @@ const provider =
 new firebase.auth.GoogleAuthProvider()
 
 provider.setCustomParameters({
-
 prompt:"select_account"
-
 })
 
 try{
 
-const result =
-await auth.signInWithPopup(provider)
-
-const user = result.user
-
-currentUser = user
-
-document.getElementById("userName")
-.innerText = user.displayName
-
-document.getElementById("userPhoto")
-.src = user.photoURL
-
-loadHistory()
+await firebase.auth().signInWithRedirect(provider)
 
 }catch(err){
 
