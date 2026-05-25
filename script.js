@@ -37,7 +37,7 @@ new firebase.auth.GoogleAuthProvider()
 
 try{
 
-await auth.signInWithRedirect(provider)
+await auth.signInWithPopup(provider)
 
 }catch(err){
 
