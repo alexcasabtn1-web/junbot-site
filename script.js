@@ -1,27 +1,128 @@
-// ======================================
-// RAINBOW AI SUPER SCRIPT 🌈
-// ======================================
+// script.js
 
 const API_KEY =
-"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"
+"gsk_SUA_KEY"
 
-const MODEL =
-"meta-llama/llama-4-scout-17b-16e-instruct"
-
+let currentUser = null
+let currentChatId = null
 let memory = []
 
 const chat =
 document.getElementById("chat")
 
-const input =
-document.getElementById("messageInput")
+// LOGIN
 
-const fileInput =
-document.getElementById("fileInput")
+async function loginGoogle(){
 
-// ======================================
-// ADD MESSAGE
-// ======================================
+const provider =
+new firebase.auth.GoogleAuthProvider()
+
+provider.setCustomParameters({
+prompt:"select_account"
+})
+
+try{
+
+const result =
+await auth.signInWithPopup(provider)
+
+currentUser = result.user
+
+document.getElementById("loginBtn")
+.style.display = "none"
+
+document.getElementById("profile")
+.style.display = "flex"
+
+document.getElementById("userName")
+.innerText = currentUser.displayName
+
+document.getElementById("userPhoto")
+.src = currentUser.photoURL
+
+loadChats()
+
+}catch(err){
+
+console.log(err)
+
+alert(err.message)
+
+}
+
+}
+
+// LOGOUT
+
+function logout(){
+
+auth.signOut()
+
+location.reload()
+
+}
+
+// LOGIN STATE
+
+auth.onAuthStateChanged(async(user)=>{
+
+if(user){
+
+currentUser = user
+
+document.getElementById("loginBtn")
+.style.display = "none"
+
+document.getElementById("profile")
+.style.display = "flex"
+
+document.getElementById("userName")
+.innerText = user.displayName
+
+document.getElementById("userPhoto")
+.src = user.photoURL
+
+loadChats()
+
+}else{
+
+document.getElementById("loginBtn")
+.style.display = "flex"
+
+document.getElementById("profile")
+.style.display = "none"
+
+}
+
+})
+
+// NOVA CONVERSA
+
+function newChat(){
+
+currentChatId = null
+
+memory = []
+
+chat.innerHTML = `
+
+<div class="welcome">
+
+<h1>
+Rainbow AI 🌈
+</h1>
+
+<p>
+Nova conversa criada
+</p>
+
+</div>
+
+`
+
+}
+
+// ADD MSG
 
 function addMessage(text,type){
 
@@ -40,133 +141,172 @@ chat.scrollHeight
 
 }
 
-// ======================================
-// ADD IMAGE
-// ======================================
+// SALVAR
 
-function addImage(url){
+async function saveChat(){
 
-const img =
-document.createElement("img")
+if(!currentUser) return
+if(!currentChatId) return
 
-img.src = url
+await db.collection("chats")
+.doc(currentChatId)
+.set({
 
-img.className =
-"aiImage"
+uid:
+currentUser.uid,
 
-chat.appendChild(img)
+title:
+memory[0]?.content
+?.slice(0,30)
+|| "Nova Conversa",
 
-chat.scrollTop =
-chat.scrollHeight
+messages:
+memory,
 
-}
-
-// ======================================
-// FILE TO TEXT
-// ======================================
-
-async function readFileContent(file){
-
-return new Promise((resolve)=>{
-
-const reader =
-new FileReader()
-
-reader.onload =
-(e)=>{
-
-resolve(e.target.result)
-
-}
-
-reader.readAsText(file)
+time:
+Date.now()
 
 })
 
 }
 
-// ======================================
-// IMAGE TO BASE64
-// ======================================
+// HISTORICO
 
-async function imageToBase64(file){
+async function loadChats(){
 
-return new Promise((resolve)=>{
+if(!currentUser) return
 
-const reader =
-new FileReader()
+const history =
+document.getElementById("historyList")
 
-reader.onload =
-()=>{
+history.innerHTML = ""
 
-resolve(reader.result)
+const snapshot =
+await db.collection("chats")
+
+.where(
+"uid",
+"==",
+currentUser.uid
+)
+
+.orderBy(
+"time",
+"desc"
+)
+
+.get()
+
+snapshot.forEach((doc)=>{
+
+const data = doc.data()
+
+const button =
+document.createElement("button")
+
+button.className =
+"historyButton"
+
+button.innerText =
+data.title || "Conversa"
+
+button.onclick = ()=>{
+
+openChat(doc.id)
 
 }
 
-reader.readAsDataURL(file)
+history.appendChild(button)
 
 })
 
 }
 
-// ======================================
-// GENERATE IMAGE
-// ======================================
+// ABRIR CHAT
 
-async function generateImage(prompt){
+async function openChat(id){
+
+currentChatId = id
+
+chat.innerHTML = ""
+
+const doc =
+await db.collection("chats")
+.doc(id)
+.get()
+
+const data =
+doc.data()
+
+memory =
+data.messages || []
+
+memory.forEach((msg)=>{
+
+if(msg.role == "user"){
 
 addMessage(
-"🎨 Gerando imagem...",
+msg.content,
+"user"
+)
+
+}else{
+
+addMessage(
+msg.content,
 "ai"
 )
 
-const url =
-`https://image.pollinations.ai/prompt/${
-encodeURIComponent(prompt)
-}?width=1024&height=1024&nologo=true`
+}
 
-addImage(url)
+})
 
 }
 
-// ======================================
-// SEND MESSAGE
-// ======================================
+// ENVIAR MSG
 
 async function sendMessage(){
 
-const text =
-input.value.trim()
+if(!currentUser){
 
-const file =
-fileInput.files[0]
-
-if(!text && !file) return
-
-// ======================================
-// IMAGE COMMAND
-// ======================================
-
-if(text.startsWith("/img ")){
-
-const prompt =
-text.replace("/img ","")
-
-addMessage(text,"user")
-
-await generateImage(prompt)
-
-input.value = ""
+alert("Faça login.")
 
 return
 
 }
 
-// ======================================
-// USER MESSAGE
-// ======================================
+const input =
+document.getElementById("messageInput")
 
-if(text){
+const text =
+input.value.trim()
+
+if(!text) return
+
+if(!currentChatId){
+
+const doc =
+await db.collection("chats")
+.add({
+
+uid:
+currentUser.uid,
+
+title:
+text.slice(0,30),
+
+messages:[],
+
+time:
+Date.now()
+
+})
+
+currentChatId = doc.id
+
+loadChats()
+
+}
 
 addMessage(text,"user")
 
@@ -177,64 +317,7 @@ content:text
 
 })
 
-}
-
-// ======================================
-// FILE SYSTEM
-// ======================================
-
-let extraContent = ""
-
-let imageBase64 = null
-
-if(file){
-
-addMessage(
-`📎 Arquivo: ${file.name}`,
-"user"
-)
-
-// TEXT FILES
-
-if(
-
-file.name.endsWith(".txt")
-||
-file.name.endsWith(".js")
-||
-file.name.endsWith(".html")
-||
-file.name.endsWith(".css")
-||
-file.name.endsWith(".json")
-||
-file.name.endsWith(".py")
-
-){
-
-extraContent =
-await readFileContent(file)
-
-}
-
-// IMAGE FILES
-
-if(
-
-file.type.startsWith("image/")
-
-){
-
-imageBase64 =
-await imageToBase64(file)
-
-}
-
-}
-
-// ======================================
-// THINKING
-// ======================================
+input.value = ""
 
 const thinking =
 document.createElement("div")
@@ -247,114 +330,7 @@ thinking.innerText =
 
 chat.appendChild(thinking)
 
-// ======================================
-// REQUEST
-// ======================================
-
 try{
-
-let messages = [
-
-{
-
-role:"system",
-
-content:
-`
-Você é Rainbow AI.
-
-Você ajuda o usuário.
-
-Você consegue:
-- analisar arquivos
-- analisar código
-- analisar imagens
-- conversar normalmente
-`
-
-}
-
-]
-
-// MEMORY
-
-memory.forEach((m)=>{
-
-messages.push(m)
-
-})
-
-// FILE CONTENT
-
-if(extraContent){
-
-messages.push({
-
-role:"user",
-
-content:
-`
-ARQUIVO:
-
-${extraContent}
-`
-
-})
-
-}
-
-// IMAGE VISION
-
-if(imageBase64){
-
-messages.push({
-
-role:"user",
-
-content:[
-
-{
-
-type:"text",
-
-text:
-"Analise esta imagem."
-
-},
-
-{
-
-type:"image_url",
-
-image_url:{
-url:imageBase64
-}
-
-}
-
-]
-
-})
-
-}
-
-// NORMAL TEXT
-
-if(text){
-
-messages.push({
-
-role:"user",
-
-content:text
-
-})
-
-}
-
-// ======================================
-// FETCH
-// ======================================
 
 const response =
 await fetch(
@@ -378,19 +354,21 @@ headers:{
 body:JSON.stringify({
 
 model:
+"meta-llama/llama-4-scout-17b-16e-instruct",
 
-imageBase64
-?
+messages:[
 
-"llama-3.2-11b-vision-preview"
+{
+role:"system",
 
-:
+content:
+"Você é Rainbow AI."
 
-MODEL,
+},
 
-messages:messages,
+...memory
 
-max_tokens:1000
+]
 
 })
 
@@ -416,6 +394,8 @@ content:reply
 
 })
 
+await saveChat()
+
 }catch(err){
 
 thinking.remove()
@@ -429,19 +409,14 @@ addMessage(
 
 }
 
-// CLEAR
-
-input.value = ""
-
-fileInput.value = ""
-
 }
 
-// ======================================
 // ENTER
-// ======================================
 
-input.addEventListener(
+document
+.getElementById("messageInput")
+
+.addEventListener(
 "keypress",
 (e)=>{
 
