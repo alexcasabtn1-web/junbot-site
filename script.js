@@ -1,36 +1,16 @@
+const API_KEY =
+"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"
+
 let currentUser = null
+let currentChatId = null
+let memory = []
 
 const chat =
 document.getElementById("chat")
 
-let currentChatId = null
-
-let memory = []
-
-// =====================
-// ADICIONAR MENSAGEM
-// =====================
-
-function addMessage(text,type){
-
-const div =
-document.createElement("div")
-
-div.className =
-"message " + type
-
-div.innerText = text
-
-chat.appendChild(div)
-
-chat.scrollTop =
-chat.scrollHeight
-
-}
-
-// =====================
-// LOGIN
-// =====================
+// ======================
+// LOGIN GOOGLE
+// ======================
 
 async function loginGoogle(){
 
@@ -43,7 +23,7 @@ prompt:"select_account"
 
 try{
 
-await auth.signInWithPopup(provider)
+await auth.signInWithRedirect(provider)
 
 }catch(err){
 
@@ -55,9 +35,9 @@ alert(err.message)
 
 }
 
-// =====================
+// ======================
 // LOGOUT
-// =====================
+// ======================
 
 function logout(){
 
@@ -67,15 +47,25 @@ location.reload()
 
 }
 
-// =====================
+// ======================
 // LOGIN STATE
-// =====================
+// ======================
 
 auth.onAuthStateChanged(async(user)=>{
 
 if(user){
 
 currentUser = user
+
+// ESCONDER LOGIN
+
+document.getElementById("loginBtn")
+.style.display = "none"
+
+// MOSTRAR PERFIL
+
+document.getElementById("profile")
+.style.display = "flex"
 
 document.getElementById("userName")
 .innerText = user.displayName
@@ -85,72 +75,45 @@ document.getElementById("userPhoto")
 
 loadChats()
 
+}else{
+
+document.getElementById("loginBtn")
+.style.display = "block"
+
+document.getElementById("profile")
+.style.display = "none"
+
 }
 
 })
 
-// =====================
-// NOVO CHAT
-// =====================
+// ======================
+// NOVA CONVERSA
+// ======================
 
-async function createNewChat(firstMessage){
+async function newChat(){
 
-const response =
-await fetch(
-"https://api.groq.com/openai/v1/chat/completions",
-{
+if(!currentUser){
 
-method:"POST",
+alert("Faça login primeiro.")
 
-headers:{
-
-"Content-Type":"application/json",
-
-"Authorization":
-"Bearer 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"
-
-},
-
-body:JSON.stringify({
-
-model:
-"meta-llama/llama-4-scout-17b-16e-instruct",
-
-messages:[
-
-{
-role:"system",
-
-content:
-"Crie um título curto para essa conversa."
-
-},
-
-{
-role:"user",
-content:firstMessage
-}
-
-]
-
-})
+return
 
 }
 
+const topic =
+prompt(
+"Sobre o que você quer conversar?"
 )
 
-const data =
-await response.json()
-
-const title =
-data.choices[0].message.content
+if(!topic) return
 
 const doc =
 await db.collection("chats").add({
 
 uid:currentUser.uid,
 
-title:title,
+title:topic,
 
 messages:[],
 
@@ -160,146 +123,26 @@ time:Date.now()
 
 currentChatId = doc.id
 
+memory = []
+
+chat.innerHTML = ""
+
 loadChats()
 
 }
 
-// =====================
-// ENVIAR
-// =====================
-
-async function sendMessage(){
-
-const input =
-document.getElementById("messageInput")
-
-const text =
-input.value
-
-if(!text) return
-
-if(!currentChatId){
-
-await createNewChat(text)
-
-}
-
-addMessage(text,"user")
-
-memory.push({
-
-role:"user",
-content:text
-
-})
-
-input.value = ""
-
-const thinking =
-document.createElement("div")
-
-thinking.className =
-"message ai"
-
-thinking.innerText =
-"Pensando..."
-
-chat.appendChild(thinking)
-
-try{
-
-const response =
-await fetch(
-
-"https://api.groq.com/openai/v1/chat/completions",
-
-{
-
-method:"POST",
-
-headers:{
-
-"Content-Type":"application/json",
-
-"Authorization":
-"Bearer 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"
-
-},
-
-body:JSON.stringify({
-
-model:
-"meta-llama/llama-4-scout-17b-16e-instruct",
-
-messages:[
-
-{
-role:"system",
-
-content:
-"Você é Rainbow AI."
-
-},
-
-...memory
-
-]
-
-})
-
-}
-
-)
-
-const data =
-await response.json()
-
-thinking.remove()
-
-const reply =
-data.choices[0].message.content
-
-memory.push({
-
-role:"assistant",
-content:reply
-
-})
-
-addMessage(reply,"ai")
-
-// SALVAR
-
-await db.collection("chats")
-.doc(currentChatId)
-.update({
-
-messages:memory
-
-})
-
-}catch(err){
-
-thinking.remove()
-
-console.log(err)
-
-addMessage("Erro 😭","ai")
-
-}
-
-}
-
-// =====================
-// CARREGAR CHATS
-// =====================
+// ======================
+// HISTORICO
+// ======================
 
 async function loadChats(){
 
-const list =
+if(!currentUser) return
+
+const history =
 document.getElementById("historyList")
 
-list.innerHTML = ""
+history.innerHTML = ""
 
 const snapshot =
 await db.collection("chats")
@@ -321,36 +164,36 @@ snapshot.forEach(doc=>{
 
 const data = doc.data()
 
-const div =
-document.createElement("div")
+const button =
+document.createElement("button")
 
-div.className =
-"historyItem"
+button.className =
+"historyButton"
 
-div.innerText =
+button.innerText =
 data.title
 
-div.onclick = ()=>{
+button.onclick = ()=>{
 
 openChat(doc.id)
 
 }
 
-list.appendChild(div)
+history.appendChild(button)
 
 })
 
 }
 
-// =====================
+// ======================
 // ABRIR CHAT
-// =====================
+// ======================
 
 async function openChat(id){
 
-chat.innerHTML = ""
-
 currentChatId = id
+
+chat.innerHTML = ""
 
 const doc =
 await db.collection("chats")
@@ -367,11 +210,17 @@ memory.forEach(msg=>{
 
 if(msg.role == "user"){
 
-addMessage(msg.content,"user")
+addMessage(
+msg.content,
+"user"
+)
 
 }else{
 
-addMessage(msg.content,"ai")
+addMessage(
+msg.content,
+"ai"
+)
 
 }
 
@@ -379,14 +228,189 @@ addMessage(msg.content,"ai")
 
 }
 
-// =====================
+// ======================
+// ADICIONAR MSG
+// ======================
+
+function addMessage(text,type){
+
+const div =
+document.createElement("div")
+
+div.className =
+"message " + type
+
+div.innerText = text
+
+chat.appendChild(div)
+
+chat.scrollTop =
+chat.scrollHeight
+
+}
+
+// ======================
+// ENVIAR MSG
+// ======================
+
+async function sendMessage(){
+
+if(!currentUser){
+
+alert("Faça login.")
+
+return
+
+}
+
+if(!currentChatId){
+
+alert(
+"Crie uma nova conversa."
+)
+
+return
+
+}
+
+const input =
+document.getElementById("messageInput")
+
+const text =
+input.value.trim()
+
+if(!text) return
+
+// MSG USER
+
+addMessage(text,"user")
+
+memory.push({
+
+role:"user",
+content:text
+
+})
+
+input.value = ""
+
+// PENSANDO
+
+const thinking =
+document.createElement("div")
+
+thinking.className =
+"message ai"
+
+thinking.innerText =
+"Pensando..."
+
+chat.appendChild(thinking)
+
+chat.scrollTop =
+chat.scrollHeight
+
+try{
+
+const response =
+await fetch(
+
+"https://api.groq.com/openai/v1/chat/completions",
+
+{
+
+method:"POST",
+
+headers:{
+
+"Content-Type":
+"application/json",
+
+"Authorization":
+`Bearer ${API_KEY}`
+
+},
+
+body:JSON.stringify({
+
+model:
+"meta-llama/llama-4-scout-17b-16e-instruct",
+
+messages:[
+
+{
+role:"system",
+
+content:
+"Você é Rainbow AI. Seja amigável e inteligente."
+
+},
+
+...memory
+
+]
+
+})
+
+}
+
+)
+
+const data =
+await response.json()
+
+thinking.remove()
+
+const reply =
+data.choices[0]
+.message.content
+
+// MSG IA
+
+addMessage(reply,"ai")
+
+memory.push({
+
+role:"assistant",
+content:reply
+
+})
+
+// SALVAR FIRESTORE
+
+await db.collection("chats")
+.doc(currentChatId)
+.update({
+
+messages:memory
+
+})
+
+}catch(err){
+
+thinking.remove()
+
+console.log(err)
+
+addMessage(
+"Erro 😭",
+"ai"
+)
+
+}
+
+}
+
+// ======================
 // ENTER
-// =====================
+// ======================
 
 document
 .getElementById("messageInput")
 
-.addEventListener("keypress",function(e){
+.addEventListener(
+"keypress",
+(e)=>{
 
 if(e.key === "Enter"){
 
@@ -394,4 +418,5 @@ sendMessage()
 
 }
 
-})
+}
+)
