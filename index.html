@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
+
 <head>
 
 <meta charset="UTF-8">
@@ -23,56 +24,108 @@ content="width=device-width, initial-scale=1.0">
 
 <body>
 
+<!-- SIDEBAR -->
+
 <div class="sidebar">
 
-<h1>Rainbow AI</h1>
+<h1 class="logo">
+Rainbow AI
+</h1>
 
 <button
+class="newChatBtn"
 onclick="newChat()">
 
 + Nova Conversa
 
 </button>
 
+<!-- LOGIN -->
+
 <button
 id="loginBtn"
+class="loginBtn"
 onclick="loginGoogle()">
 
 Entrar com Google
 
 </button>
 
+<!-- PERFIL -->
+
 <div
 id="profile"
+class="profile"
 style="display:none;">
 
 <img
 id="userPhoto"
-width="40">
+class="userPhoto">
 
-<span id="userName"></span>
+<div id="userName">
+Usuário
+</div>
 
-<button onclick="logout()">
+<button
+class="logoutBtn"
+onclick="logout()">
+
 Sair
+
 </button>
 
 </div>
 
-<div id="historyList"></div>
+<!-- HISTORICO -->
+
+<div
+id="historyList"
+class="historyList">
 
 </div>
 
+</div>
+
+<!-- MAIN -->
+
 <div class="main">
 
-<div id="chat"></div>
+<!-- CHAT -->
+
+<div
+id="chat"
+class="chat">
+
+<div class="welcome">
+
+<h1>
+Rainbow AI 🌈
+</h1>
+
+<p>
+Sua IA inteligente
+</p>
+
+</div>
+
+</div>
+
+<!-- INPUT -->
 
 <div class="inputArea">
 
 <input
+
 id="messageInput"
-placeholder="Digite...">
+
+type="text"
+
+placeholder="Digite sua mensagem..."
+
+>
 
 <button
+class="sendBtn"
 onclick="sendMessage()">
 
 Enviar
@@ -83,7 +136,11 @@ Enviar
 
 </div>
 
+<!-- FIREBASE -->
+
 <script src="firebase.js"></script>
+
+<!-- SCRIPT -->
 
 <script src="script.js"></script>
 
