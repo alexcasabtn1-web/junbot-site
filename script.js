@@ -52,36 +52,6 @@ alert(err.message)
 
 }
 
-auth.signInWithRedirect(provider)
-
-}
-
-// LOGIN STATE
-
-auth.onAuthStateChanged((user)=>{
-
-if(user){
-
-currentUser = user
-
-document.getElementById("loginBtn")
-.style.display = "none"
-
-document.getElementById("profile")
-.style.display = "flex"
-
-document.getElementById("userName")
-.innerText = user.displayName
-
-document.getElementById("userPhoto")
-.src = user.photoURL
-
-loadChats()
-
-}
-
-})
-
 // ======================
 // LOGOUT
 // ======================
@@ -104,12 +74,8 @@ if(user){
 
 currentUser = user
 
-// ESCONDER LOGIN
-
 document.getElementById("loginBtn")
 .style.display = "none"
-
-// MOSTRAR PERFIL
 
 document.getElementById("profile")
 .style.display = "flex"
@@ -138,43 +104,13 @@ document.getElementById("profile")
 // NOVA CONVERSA
 // ======================
 
-async function newChat(){
+function newChat(){
 
-if(!currentUser){
-
-alert("Faça login primeiro.")
-
-return
-
-}
-
-const topic =
-prompt(
-"Sobre o que você quer conversar?"
-)
-
-if(!topic) return
-
-const doc =
-await db.collection("chats").add({
-
-uid:currentUser.uid,
-
-title:topic,
-
-messages:[],
-
-time:Date.now()
-
-})
-
-currentChatId = doc.id
+currentChatId = null
 
 memory = []
 
 chat.innerHTML = ""
-
-loadChats()
 
 }
 
@@ -342,121 +278,6 @@ memory = []
 loadChats()
 
 }
-
-// MSG USER
-
-addMessage(text,"user")
-
-memory.push({
-
-role:"user",
-content:text
-
-})
-
-input.value = ""
-
-// PENSANDO
-
-const thinking =
-document.createElement("div")
-
-thinking.className =
-"message ai"
-
-thinking.innerText =
-"Pensando..."
-
-chat.appendChild(thinking)
-
-try{
-
-const response =
-await fetch(
-
-"https://api.groq.com/openai/v1/chat/completions",
-
-{
-
-method:"POST",
-
-headers:{
-
-"Content-Type":"application/json",
-
-"Authorization":
-"Bearer SUA_GROQ_KEY"
-
-},
-
-body:JSON.stringify({
-
-model:
-"meta-llama/llama-4-scout-17b-16e-instruct",
-
-messages:[
-
-{
-role:"system",
-content:"Você é Rainbow AI."
-},
-
-...memory
-
-]
-
-})
-
-}
-
-)
-
-const data =
-await response.json()
-
-thinking.remove()
-
-const reply =
-data.choices[0]
-.message.content
-
-addMessage(reply,"ai")
-
-memory.push({
-
-role:"assistant",
-content:reply
-
-})
-
-// SALVAR
-
-await db.collection("chats")
-.doc(currentChatId)
-.update({
-
-messages:memory
-
-})
-
-}catch(err){
-
-thinking.remove()
-
-console.log(err)
-
-addMessage("Erro 😭","ai")
-
-}
-
-}
-const input =
-document.getElementById("messageInput")
-
-const text =
-input.value.trim()
-
-if(!text) return
 
 // MSG USER
 
