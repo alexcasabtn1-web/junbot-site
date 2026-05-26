@@ -110,7 +110,73 @@ currentChatId = null
 
 memory = []
 
-chat.innerHTML = ""
+chat.innerHTML = `
+
+<div class="welcome">
+
+<h1>
+Rainbow AI 🌈
+</h1>
+
+<p>
+Nova conversa criada
+</p>
+
+</div>
+
+`
+
+}
+
+// ======================
+// ADD MSG
+// ======================
+
+function addMessage(text,type){
+
+const div =
+document.createElement("div")
+
+div.className =
+"message " + type
+
+div.innerText = text
+
+chat.appendChild(div)
+
+chat.scrollTop =
+chat.scrollHeight
+
+}
+
+// ======================
+// SALVAR CHAT
+// ======================
+
+async function saveChat(){
+
+if(!currentUser) return
+if(!currentChatId) return
+
+await db.collection("chats")
+.doc(currentChatId)
+.set({
+
+uid:
+currentUser.uid,
+
+title:
+memory[0]?.content
+?.slice(0,30)
+|| "Nova Conversa",
+
+messages:
+memory,
+
+time:
+Date.now()
+
+})
 
 }
 
@@ -143,7 +209,7 @@ currentUser.uid
 
 .get()
 
-snapshot.forEach(doc=>{
+snapshot.forEach((doc)=>{
 
 const data = doc.data()
 
@@ -154,7 +220,7 @@ button.className =
 "historyButton"
 
 button.innerText =
-data.title
+data.title || "Conversa"
 
 button.onclick = ()=>{
 
@@ -189,7 +255,7 @@ doc.data()
 memory =
 data.messages || []
 
-memory.forEach(msg=>{
+memory.forEach((msg)=>{
 
 if(msg.role == "user"){
 
@@ -208,27 +274,6 @@ msg.content,
 }
 
 })
-
-}
-
-// ======================
-// ADICIONAR MSG
-// ======================
-
-function addMessage(text,type){
-
-const div =
-document.createElement("div")
-
-div.className =
-"message " + type
-
-div.innerText = text
-
-chat.appendChild(div)
-
-chat.scrollTop =
-chat.scrollHeight
 
 }
 
@@ -259,21 +304,23 @@ if(!text) return
 if(!currentChatId){
 
 const doc =
-await db.collection("chats").add({
+await db.collection("chats")
+.add({
 
-uid:currentUser.uid,
+uid:
+currentUser.uid,
 
-title:text.slice(0,30),
+title:
+text.slice(0,30),
 
 messages:[],
 
-time:Date.now()
+time:
+Date.now()
 
 })
 
 currentChatId = doc.id
-
-memory = []
 
 loadChats()
 
@@ -292,7 +339,7 @@ content:text
 
 input.value = ""
 
-// PENSANDO
+// IA PENSANDO
 
 const thinking =
 document.createElement("div")
@@ -337,10 +384,18 @@ model:
 messages:[
 
 {
+
 role:"system",
 
 content:
-"Você é Rainbow AI. Seja amigável e inteligente."
+`
+Você é Rainbow AI.
+
+Você lembra da conversa anterior.
+
+Responda de forma amigável,
+inteligente e natural.
+`
 
 },
 
@@ -374,15 +429,9 @@ content:reply
 
 })
 
-// SALVAR FIRESTORE
+// SALVAR FIREBASE
 
-await db.collection("chats")
-.doc(currentChatId)
-.update({
-
-messages:memory
-
-})
+await saveChat()
 
 }catch(err){
 
