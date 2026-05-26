@@ -21,13 +21,44 @@ provider.setCustomParameters({
 prompt:"select_account"
 })
 
+try{
+
+const result =
+await auth.signInWithPopup(provider)
+
+currentUser = result.user
+
+document.getElementById("loginBtn")
+.style.display = "none"
+
+document.getElementById("profile")
+.style.display = "flex"
+
+document.getElementById("userName")
+.innerText = currentUser.displayName
+
+document.getElementById("userPhoto")
+.src = currentUser.photoURL
+
+loadChats()
+
+}catch(err){
+
+console.log(err)
+
+alert(err.message)
+
+}
+
+}
+
 auth.signInWithRedirect(provider)
 
 }
 
 // LOGIN STATE
 
-auth.onAuthStateChanged(async(user)=>{
+auth.onAuthStateChanged((user)=>{
 
 if(user){
 
@@ -46,14 +77,6 @@ document.getElementById("userPhoto")
 .src = user.photoURL
 
 loadChats()
-
-}else{
-
-document.getElementById("loginBtn")
-.style.display = "block"
-
-document.getElementById("profile")
-.style.display = "none"
 
 }
 
