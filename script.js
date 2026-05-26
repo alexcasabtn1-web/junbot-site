@@ -23,8 +23,11 @@ prompt:"select_account"
 
 try{
 
+const result =
 await auth.signInWithPopup(provider)
-  
+
+console.log(result.user)
+
 }catch(err){
 
 console.log(err)
