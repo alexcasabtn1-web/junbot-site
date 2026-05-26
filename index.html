@@ -26,32 +26,33 @@ content="width=device-width, initial-scale=1.0">
 
 <!-- SIDEBAR -->
 
-<div class="sidebar">
+<div class="inputArea">
 
-<div class="topSidebar">
+<input
 
-<!-- LOGO -->
+id="messageInput"
 
-<div class="logoBox">
+type="text"
 
-<img
-src="logo.png"
-class="logo">
+placeholder="Pergunte algo..."
 
-<div class="logoTexts">
+autocomplete="off"
 
-<h1>
-Rainbow AI
-</h1>
+>
 
-<p>
-Sua IA Neon 🌈
-</p>
+<input
+type="file"
+id="fileInput">
+
+<button
+class="sendBtn"
+onclick="sendMessage()">
+
+Enviar
+
+</button>
 
 </div>
-
-</div>
-
 <!-- NOVA CONVERSA -->
 
 <button
