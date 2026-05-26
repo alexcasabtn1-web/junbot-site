@@ -1,136 +1,27 @@
+// ======================================
+// RAINBOW AI SUPER SCRIPT 🌈
+// ======================================
+
 const API_KEY =
 "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"
 
-let currentUser = null
-let currentChatId = null
+const MODEL =
+"meta-llama/llama-4-scout-17b-16e-instruct"
+
 let memory = []
 
 const chat =
 document.getElementById("chat")
 
-// ======================
-// LOGIN GOOGLE
-// ======================
+const input =
+document.getElementById("messageInput")
 
-async function loginGoogle(){
+const fileInput =
+document.getElementById("fileInput")
 
-const provider =
-new firebase.auth.GoogleAuthProvider()
-
-provider.setCustomParameters({
-prompt:"select_account"
-})
-
-try{
-
-const result =
-await auth.signInWithPopup(provider)
-
-currentUser = result.user
-
-document.getElementById("loginBtn")
-.style.display = "none"
-
-document.getElementById("profile")
-.style.display = "flex"
-
-document.getElementById("userName")
-.innerText = currentUser.displayName
-
-document.getElementById("userPhoto")
-.src = currentUser.photoURL
-
-loadChats()
-
-}catch(err){
-
-console.log(err)
-
-alert(err.message)
-
-}
-
-}
-
-// ======================
-// LOGOUT
-// ======================
-
-function logout(){
-
-auth.signOut()
-
-location.reload()
-
-}
-
-// ======================
-// LOGIN STATE
-// ======================
-
-auth.onAuthStateChanged(async(user)=>{
-
-if(user){
-
-currentUser = user
-
-document.getElementById("loginBtn")
-.style.display = "none"
-
-document.getElementById("profile")
-.style.display = "flex"
-
-document.getElementById("userName")
-.innerText = user.displayName
-
-document.getElementById("userPhoto")
-.src = user.photoURL
-
-loadChats()
-
-}else{
-
-document.getElementById("loginBtn")
-.style.display = "block"
-
-document.getElementById("profile")
-.style.display = "none"
-
-}
-
-})
-
-// ======================
-// NOVA CONVERSA
-// ======================
-
-function newChat(){
-
-currentChatId = null
-
-memory = []
-
-chat.innerHTML = `
-
-<div class="welcome">
-
-<h1>
-Rainbow AI 🌈
-</h1>
-
-<p>
-Nova conversa criada
-</p>
-
-</div>
-
-`
-
-}
-
-// ======================
-// ADD MSG
-// ======================
+// ======================================
+// ADD MESSAGE
+// ======================================
 
 function addMessage(text,type){
 
@@ -149,184 +40,133 @@ chat.scrollHeight
 
 }
 
-// ======================
-// SALVAR CHAT
-// ======================
+// ======================================
+// ADD IMAGE
+// ======================================
 
-async function saveChat(){
+function addImage(url){
 
-if(!currentUser) return
-if(!currentChatId) return
+const img =
+document.createElement("img")
 
-await db.collection("chats")
-.doc(currentChatId)
-.set({
+img.src = url
 
-uid:
-currentUser.uid,
+img.className =
+"aiImage"
 
-title:
-memory[0]?.content
-?.slice(0,30)
-|| "Nova Conversa",
+chat.appendChild(img)
 
-messages:
-memory,
+chat.scrollTop =
+chat.scrollHeight
 
-time:
-Date.now()
+}
+
+// ======================================
+// FILE TO TEXT
+// ======================================
+
+async function readFileContent(file){
+
+return new Promise((resolve)=>{
+
+const reader =
+new FileReader()
+
+reader.onload =
+(e)=>{
+
+resolve(e.target.result)
+
+}
+
+reader.readAsText(file)
 
 })
 
 }
 
-// ======================
-// HISTORICO
-// ======================
+// ======================================
+// IMAGE TO BASE64
+// ======================================
 
-async function loadChats(){
+async function imageToBase64(file){
 
-if(!currentUser) return
+return new Promise((resolve)=>{
 
-const history =
-document.getElementById("historyList")
+const reader =
+new FileReader()
 
-history.innerHTML = ""
+reader.onload =
+()=>{
 
-const snapshot =
-await db.collection("chats")
-
-.where(
-"uid",
-"==",
-currentUser.uid
-)
-
-.orderBy(
-"time",
-"desc"
-)
-
-.get()
-
-snapshot.forEach((doc)=>{
-
-const data = doc.data()
-
-const button =
-document.createElement("button")
-
-button.className =
-"historyButton"
-
-button.innerText =
-data.title || "Conversa"
-
-button.onclick = ()=>{
-
-openChat(doc.id)
+resolve(reader.result)
 
 }
 
-history.appendChild(button)
+reader.readAsDataURL(file)
 
 })
 
 }
 
-// ======================
-// ABRIR CHAT
-// ======================
+// ======================================
+// GENERATE IMAGE
+// ======================================
 
-async function openChat(id){
-
-currentChatId = id
-
-chat.innerHTML = ""
-
-const doc =
-await db.collection("chats")
-.doc(id)
-.get()
-
-const data =
-doc.data()
-
-memory =
-data.messages || []
-
-memory.forEach((msg)=>{
-
-if(msg.role == "user"){
+async function generateImage(prompt){
 
 addMessage(
-msg.content,
-"user"
-)
-
-}else{
-
-addMessage(
-msg.content,
+"🎨 Gerando imagem...",
 "ai"
 )
 
+const url =
+`https://image.pollinations.ai/prompt/${
+encodeURIComponent(prompt)
+}?width=1024&height=1024&nologo=true`
+
+addImage(url)
+
 }
 
-})
-
-}
-
-// ======================
-// ENVIAR MSG
-// ======================
+// ======================================
+// SEND MESSAGE
+// ======================================
 
 async function sendMessage(){
 
-if(!currentUser){
+const text =
+input.value.trim()
 
-alert("Faça login.")
+const file =
+fileInput.files[0]
+
+if(!text && !file) return
+
+// ======================================
+// IMAGE COMMAND
+// ======================================
+
+if(text.startsWith("/img ")){
+
+const prompt =
+text.replace("/img ","")
+
+addMessage(text,"user")
+
+await generateImage(prompt)
+
+input.value = ""
 
 return
 
 }
 
-const input =
-document.getElementById("messageInput")
+// ======================================
+// USER MESSAGE
+// ======================================
 
-const text =
-input.value.trim()
-
-if(!text) return
-
-// AUTO CRIAR CHAT
-
-if(!currentChatId){
-
-const doc =
-await db.collection("chats")
-.add({
-
-uid:
-currentUser.uid,
-
-title:
-text.slice(0,30),
-
-messages:[],
-
-time:
-Date.now()
-
-})
-
-currentChatId = doc.id
-
-loadChats()
-
-}
-
-// MSG USER
+if(text){
 
 addMessage(text,"user")
 
@@ -337,9 +177,64 @@ content:text
 
 })
 
-input.value = ""
+}
 
-// IA PENSANDO
+// ======================================
+// FILE SYSTEM
+// ======================================
+
+let extraContent = ""
+
+let imageBase64 = null
+
+if(file){
+
+addMessage(
+`📎 Arquivo: ${file.name}`,
+"user"
+)
+
+// TEXT FILES
+
+if(
+
+file.name.endsWith(".txt")
+||
+file.name.endsWith(".js")
+||
+file.name.endsWith(".html")
+||
+file.name.endsWith(".css")
+||
+file.name.endsWith(".json")
+||
+file.name.endsWith(".py")
+
+){
+
+extraContent =
+await readFileContent(file)
+
+}
+
+// IMAGE FILES
+
+if(
+
+file.type.startsWith("image/")
+
+){
+
+imageBase64 =
+await imageToBase64(file)
+
+}
+
+}
+
+// ======================================
+// THINKING
+// ======================================
 
 const thinking =
 document.createElement("div")
@@ -352,10 +247,114 @@ thinking.innerText =
 
 chat.appendChild(thinking)
 
-chat.scrollTop =
-chat.scrollHeight
+// ======================================
+// REQUEST
+// ======================================
 
 try{
+
+let messages = [
+
+{
+
+role:"system",
+
+content:
+`
+Você é Rainbow AI.
+
+Você ajuda o usuário.
+
+Você consegue:
+- analisar arquivos
+- analisar código
+- analisar imagens
+- conversar normalmente
+`
+
+}
+
+]
+
+// MEMORY
+
+memory.forEach((m)=>{
+
+messages.push(m)
+
+})
+
+// FILE CONTENT
+
+if(extraContent){
+
+messages.push({
+
+role:"user",
+
+content:
+`
+ARQUIVO:
+
+${extraContent}
+`
+
+})
+
+}
+
+// IMAGE VISION
+
+if(imageBase64){
+
+messages.push({
+
+role:"user",
+
+content:[
+
+{
+
+type:"text",
+
+text:
+"Analise esta imagem."
+
+},
+
+{
+
+type:"image_url",
+
+image_url:{
+url:imageBase64
+}
+
+}
+
+]
+
+})
+
+}
+
+// NORMAL TEXT
+
+if(text){
+
+messages.push({
+
+role:"user",
+
+content:text
+
+})
+
+}
+
+// ======================================
+// FETCH
+// ======================================
 
 const response =
 await fetch(
@@ -379,29 +378,19 @@ headers:{
 body:JSON.stringify({
 
 model:
-"meta-llama/llama-4-scout-17b-16e-instruct",
 
-messages:[
+imageBase64
+?
 
-{
+"llama-3.2-11b-vision-preview"
 
-role:"system",
+:
 
-content:
-`
-Você é Rainbow AI.
+MODEL,
 
-Você lembra da conversa anterior.
+messages:messages,
 
-Responda de forma amigável,
-inteligente e natural.
-`
-
-},
-
-...memory
-
-]
+max_tokens:1000
 
 })
 
@@ -418,8 +407,6 @@ const reply =
 data.choices[0]
 .message.content
 
-// MSG IA
-
 addMessage(reply,"ai")
 
 memory.push({
@@ -428,10 +415,6 @@ role:"assistant",
 content:reply
 
 })
-
-// SALVAR FIREBASE
-
-await saveChat()
 
 }catch(err){
 
@@ -446,16 +429,19 @@ addMessage(
 
 }
 
+// CLEAR
+
+input.value = ""
+
+fileInput.value = ""
+
 }
 
-// ======================
+// ======================================
 // ENTER
-// ======================
+// ======================================
 
-document
-.getElementById("messageInput")
-
-.addEventListener(
+input.addEventListener(
 "keypress",
 (e)=>{
 
