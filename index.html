@@ -5,11 +5,14 @@
 
 <meta charset="UTF-8">
 
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport"
+content="width=device-width, initial-scale=1.0">
 
 <title>Rainbow AI</title>
 
 <link rel="stylesheet" href="style.css">
+
+<!-- FIREBASE -->
 
 <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
 
@@ -25,21 +28,25 @@
 
 <div class="sidebar">
 
+<!-- LOGO -->
+
 <div class="logoArea">
 
 <img
 src="logo.png"
 class="logo">
 
-<h1>
+<h1 class="title">
 Rainbow AI
 </h1>
 
-<p>
-Sua IA Neon 🌈
+<p class="subtitle">
+BaseURL: RainbowAIBetaDemo
 </p>
 
 </div>
+
+<!-- NOVA CONVERSA -->
 
 <button
 class="newChatBtn"
@@ -48,6 +55,8 @@ onclick="newChat()">
 + Nova Conversa
 
 </button>
+
+<!-- LOGIN -->
 
 <button
 id="loginBtn"
@@ -62,6 +71,8 @@ Entrar com Google
 </span>
 
 </button>
+
+<!-- PERFIL -->
 
 <div
 id="profile"
@@ -90,6 +101,8 @@ Sair
 
 </div>
 
+<!-- HISTORICO -->
+
 <div
 id="historyList"
 class="historyList">
@@ -101,6 +114,8 @@ class="historyList">
 <!-- MAIN -->
 
 <div class="main">
+
+<!-- CHAT -->
 
 <div
 id="chat"
@@ -123,6 +138,8 @@ Converse gratuitamente com memória inteligente
 </div>
 
 </div>
+
+<!-- INPUT -->
 
 <div class="inputArea">
 
@@ -150,7 +167,11 @@ Enviar
 
 </div>
 
+<!-- FIREBASE -->
+
 <script src="firebase.js"></script>
+
+<!-- SCRIPT -->
 
 <script src="script.js"></script>
 
