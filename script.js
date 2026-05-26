@@ -23,8 +23,8 @@ prompt:"select_account"
 
 try{
 
-await auth.signInWithRedirect(provider)
-
+await auth.signInWithPopup(provider)
+  
 }catch(err){
 
 console.log(err)
