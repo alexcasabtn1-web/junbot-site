@@ -1,197 +1,42 @@
-<!DOCTYPE html>
-	<html>
-	<head>
-		<title>Painel Brinting0AI</title>
-		<meta charset="UTF-8">
-		<style>
-			* { margin: 0; padding: 0; box-sizing: border-box; }
-			body {
-				font-family: 'Segoe UI', sans-serif;
-				background: #0d1117;
-				color: #c9d1d9;
-				padding: 40px;
-			}
-			.container { max-width: 900px; margin: 0 auto; }
-			h1 { color: #00ff96; font-size: 2.5em; margin-bottom: 5px; }
-			.subtitle { color: #8b949e; margin-bottom: 30px; }
-			.tabs {
-				display: flex;
-				gap: 10px;
-				border-bottom: 1px solid #30363d;
-				margin-bottom: 30px;
-			}
-			.tab {
-				padding: 12px 24px;
-				background: #161b22;
-				border: 1px solid #30363d;
-				border-bottom: none;
-				border-radius: 6px 6px 0 0;
-				cursor: pointer;
-				color: #8b949e;
-			}
-			.tab.active {
-				background: #0d1117;
-				color: #00ff96;
-				border-bottom: 2px solid #00ff96;
-			}
-			.tab-content { display: none; }
-			.tab-content.active { display: block; }
-			.content {
-				background: #161b22;
-				padding: 25px;
-				border-radius: 6px;
-				border: 1px solid #30363d;
-				margin-bottom: 20px;
-			}
-			.content h2 { color: #c9d1d9; margin-bottom: 15px; font-size: 1.3em; }
-			input {
-				background: #0d1117;
-				border: 1px solid #30363d;
-				color: #c9d1d9;
-				padding: 10px 15px;
-				border-radius: 6px;
-				width: 300px;
-				margin-right: 10px;
-			}
-			button {
-				background: #00ff96;
-				color: #0d1117;
-				border: none;
-				padding: 10px 20px;
-				border-radius: 6px;
-				font-weight: bold;
-				cursor: pointer;
-			}
-			button:hover { background: #00dd80; }
-			.copy-btn {
-				background: #58a6ff;
-				padding: 5px 15px;
-				font-size: 0.9em;
-			}
-			.key-item {
-				background: #0d1117;
-				padding: 15px;
-				border-radius: 6px;
-				border: 1px solid #30363d;
-				margin: 10px 0;
-				display: flex;
-				justify-content: space-between;
-				align-items: center;
-			}
-			.key-item code {
-				color: #79c0ff;
-				font-size: 0.9em;
-				word-break: break-all;
-			}
-			.key-item small { color: #8b949e; }
-			code.block {
-				background: #0d1117;
-				padding: 15px;
-				border-radius: 6px;
-				display: block;
-				text-align: left;
-				border: 1px solid #30363d;
-				color: #79c0ff;
-				font-family: 'Consolas', monospace;
-				font-size: 0.95em;
-				white-space: pre;
-				margin: 10px 0;
-			}
-		</style>
-	</head>
-	<body>
-		<div class="container">
-			<h1>Painel Brinting0AI</h1>
-			<p class="subtitle">Respostas Api : Meta AI - OpenAI</p>
-			
-			<div class="tabs">
-				<div class="tab active" onclick="abrirTab('keys')">API Keys</div>
-				<div class="tab" onclick="abrirTab('models')">Models</div>
-				<div class="tab" onclick="abrirTab('links')">Links</div>
-			</div>
-			
-			<div id="keys" class="tab-content active">
-				<div class="content">
-					<h2>Criar Nova API Key</h2>
-					<input type="text" id="nome" placeholder="Nome pra sua key, ex: ApiKeyGratisIncrivel">
-					<button onclick="criarKey()">Criar Sua API KEY</button>
-				</div>
-				
-				<div class="content">
-					<h2>API Keys Criadas</h2>
-					<div id="keys-list">""" + keys_html + """</div>
-				</div>
-			</div>
-			
-			<div id="models" class="tab-content">
-				<div class="content">
-					<h2>Modelos Disponíveis no Ollama</h2>
-					""" + models_html + """
-					<p style="color: #8b949e; margin-top: 15px;">Use o nome do modelo no parâmetro "model" da requisição.</p>
-				</div>
-			</div>
-			
-			<div id="links" class="tab-content">
-				<div class="content">
-					<h2>Como Usar a API</h2>
-					<h3>Endpoint Base:</h3>
-					<code class="block">http://localhost:8000</code>
-					
-					<h3>1. Chat Completions:</h3>
-					<code class="block">POST /v1/chat/completions
-Headers: Authorization: Bearer jn-xxx-nome
-Body: {
-  "model": "llama3",
-  "messages": [{"role": "user", "content": "Oi"}]
-}</code>
-					
-					<h3>Testar no Python:</h3>
-					<code class="block">import requests
+<!-- Cole esse bloco de conteúdo dentro do container do seu site FastAPI -->
+<div class="content">
+    <h2>🎨 Criar Imagens Via IA (100% Grátis e Ilimitado)</h2>
+    <p class="info-p">Digite a sua ideia em inglês para conseguir o melhor resultado hiper-realista:</p>
+    
+    <input type="text" id="prompt_imagem" placeholder="Ex: A futuristic cyberpunk cat, neon lights, 4k" style="width: 70%; margin-bottom: 15px;">
+    <button onclick="gerarImagemFlux()">Gerar Imagem Real 🚀</button>
+    
+    <!-- Local onde a imagem vai aparecer na tela do usuário -->
+    <div id="resultado-imagem" style="margin-top: 20px; display: none; border: 1px solid #30363d; padding: 10px; border-radius: 6px; background: #0d1117;">
+        <p style="color: #00ff96; font-weight: bold; margin-bottom: 10px;">Imagem Gerada:</p>
+        <img id="img-resultado" src="" alt="Resultado da IA" style="max-width: 100%; border-radius: 6px; border: 1px solid #00ff96;">
+    </div>
+</div>
 
-r = requests.post(
-    "http://localhost:8000/v1/chat/completions",
-    headers={"Authorization": "Bearer SUA_KEY"},
-    json={
-        "model": "llama3",
-        "messages": [{"role": "user", "content": "Oi"}]
+<script>
+async function gerarImagemFlux() {
+    const prompt = document.getElementById('prompt_imagem').value;
+    if (!prompt) {
+        alert('Digita alguma ideia antes de mandar gerar! 🤠');
+        return;
     }
-)
-print(r.json())</code>
-				</div>
-			</div>
-		</div>
-		
-		<script>
-			function abrirTab(tab) {
-				document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
-				document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
-				event.target.classList.add('active');
-				document.getElementById(tab).classList.add('active');
-			}
-			
-			async function criarKey() {
-				const nome = document.getElementById('nome').value || 'Anonimo';
-				try {
-					const res = await fetch('/create_key', {
-						method: 'POST',
-						headers: {'Content-Type': 'application/json'},
-						body: JSON.stringify({nome: nome})
-					});
-					
-					if (!res.ok) throw new Error('Servidor retornou ' + res.status);
-					
-					const data = await res.json();
-					alert('Key criada: ' + data.api_key);
-					location.reload();
-				} catch (err) {
-					alert('Erro: ' + err.message);
-				}
-			}
-			
-			function copiarKey(key) {
-				navigator.clipboard.writeText(key);
-				alert('Key copiada!');
-			}
-		</script>
-	</body>
-	</html>
+    
+    const divResultado = document.getElementById('resultado-imagem');
+    const tagImg = document.getElementById('img-resultado');
+    
+    // Altera o visual para avisar o usuário que a IA está trabalhando
+    divResultado.style.display = 'block';
+    tagImg.src = '';
+    tagImg.alt = 'As supermáquinas da nuvem estão desenhando seu prompt...';
+    
+    // Codifica o prompt de forma segura para não quebrar a URL
+    const promptCodificado = encodeURIComponent(prompt);
+    
+    // Monta a URL mágica que você descobriu com o modelo FLUX
+    const urlFinal = `https://pollinations.ai{promptCodificado}?model=flux&width=1024&height=1024&seed=${Math.floor(Math.random() * 100000)}&enhance=false&nologo=true`;
+    
+    // Injeta o link direto na imagem. O próprio navegador baixa e renderiza da nuvem deles!
+    tagImg.src = urlFinal;
+    tagImg.alt = 'Imagem Concluída!';
+}
+</script>
