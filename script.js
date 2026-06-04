@@ -1,4 +1,3 @@
-const NGROK_URL = "https://ngrok-free.dev";
 let personagens = [];
 let Richmond = null;
 
@@ -94,28 +93,27 @@ function enviarMensagem() {
     
     mensagensParaEnviar = mensagensParaEnviar.concat(Richmond.historico);
 
-    fetch(NGROK_URL + "/v1/chat/completions", {
+    fetch("http://brinting0ai:8000/v1/chat/completions", {
         method: "POST",
         headers: {
             "Content-Type": "application/json",
-            "Authorization": "Bearer bpk-d7cdc91f2a02778d-public",
-            "ngrok-skip-browser-warning": "69420"
+            "Authorization": "Bearer bpk-d7cdc91f2a02778d-public"
         },
         body: JSON.stringify({
             model: Richmond.model,
             messages: mensagensParaEnviar
         })
-            })
-            .then(function(res) { return res.json(); })
-            .then(function(data) {
-                const respostaIA = data.choices[0].message.content;
-                adicionarMensagemNaTela('ai', respostaIA);
-                Richmond.historico.push({ role: "assistant", content: respostaIA });
-                salvarNoNavegador();
-            })
-            .catch(function(err) {
-                adicionarMensagemNaTela('ai', "Erro de Conexão: Certifique-se de que o seu Ngrok e o Ollama estão ligados no PC!");
-            });
+    })
+    .then(function(res) { return res.json(); })
+    .then(function(data) {
+        const respostaIA = data.choices[0].message.content;
+        adicionarMensagemNaTela('ai', respostaIA);
+        Richmond.historico.push({ role: "assistant", content: respostaIA });
+        salvarNoNavegador();
+    })
+    .catch(function(err) {
+        adicionarMensagemNaTela('ai', "Erro de Conexão: Verifique se o endpoint http://brinting0ai:8000 está respondendo.");
+    });
 }
 
 function adicionarMensagemNaTela(remetente, texto) {
