@@ -12,7 +12,6 @@
             --text: #e1e1e6;
             --text-muted: #8b8b9d;
         }
-
         body {
             margin: 0;
             padding: 0;
@@ -22,7 +21,6 @@
             display: flex;
             height: 100vh;
         }
-
         .sidebar {
             width: 320px;
             background-color: var(--panel-dark);
@@ -33,23 +31,19 @@
             gap: 20px;
             overflow-y: auto;
         }
-
         h2, h3 {
             margin: 0;
             color: var(--accent);
         }
-
         .form-group {
             display: flex;
             flex-direction: column;
             gap: 8px;
         }
-
         label {
             font-size: 14px;
             color: var(--text-muted);
         }
-
         input, textarea, select {
             background-color: var(--bg-dark);
             border: 1px solid #292938;
@@ -59,11 +53,9 @@
             font-size: 14px;
             outline: none;
         }
-
         input:focus, textarea:focus, select:focus {
             border-color: var(--accent);
         }
-
         button {
             background-color: var(--accent);
             color: var(--bg-dark);
@@ -74,18 +66,15 @@
             cursor: pointer;
             transition: 0.2s;
         }
-
         button:hover {
             opacity: 0.9;
         }
-
         .character-list {
             display: flex;
             flex-direction: column;
             gap: 10px;
             margin-top: 10px;
         }
-
         .char-card {
             background-color: var(--bg-dark);
             border: 1px solid #292938;
@@ -94,35 +83,29 @@
             cursor: pointer;
             transition: 0.2s;
         }
-
         .char-card:hover, .char-card.active {
             border-color: var(--accent);
             background-color: #1a1a26;
         }
-
         .char-card h4 {
             margin: 0 0 5px 0;
         }
-
         .char-card p {
             margin: 0;
             font-size: 12px;
             color: var(--text-muted);
         }
-
         .chat-container {
             flex: 1;
             display: flex;
             flex-direction: column;
             background-color: var(--bg-dark);
         }
-
         .chat-header {
             background-color: var(--panel-dark);
             padding: 20px;
             border-bottom: 1px solid #292938;
         }
-
         .chat-messages {
             flex: 1;
             padding: 20px;
@@ -131,28 +114,24 @@
             flex-direction: column;
             gap: 15px;
         }
-
         .message {
             max-width: 70%;
             padding: 12px 16px;
             border-radius: 8px;
             line-height: 1.4;
         }
-
         .message.user {
             background-color: var(--accent);
             color: var(--bg-dark);
             align-self: flex-end;
             border-bottom-right-radius: 0;
         }
-
         .message.ai {
             background-color: var(--panel-dark);
             color: var(--text);
             align-self: flex-start;
             border-bottom-left-radius: 0;
         }
-
         .chat-input-area {
             padding: 20px;
             background-color: var(--panel-dark);
@@ -160,7 +139,6 @@
             display: flex;
             gap: 10px;
         }
-
         .chat-input-area input {
             flex: 1;
         }
@@ -316,4 +294,5 @@
                 },
                 body: JSON.stringify({
                     model: Richmond.model,
-messages: mensagensParaEnviar})}).then(function(res) { return res.json(); }).then(function(data) {const respostaIA = data.choices[0].message.content;adicionarMensagemNaTela('ai', respostaIA);Richmond.historico.push({ role: "assistant", content: respostaIA });salvarNoNavegador();}).catch(function(err) {adicionarMensagemNaTela('ai', "Erro de Conexão: Certifique-se de que o seu Ngrok e o Ollama estão ligados no PC!");});}function adicionarMensagemNaTela(remetente, texto) {const chatBox = document.getElementById('chat-box');const msgDiv = document.createElement('div');msgDiv.className = "message " + remetente;msgDiv.innerText = texto;chatBox.appendChild(msgDiv);chatBox.scrollTop = chatBox.scrollHeight;}function salvarNoNavegador() {localStorage.setItem('polly_ai_chars', JSON.stringify(personagens));}function verificarEnter(event) {if (event.key === "Enter") enviarMensagem();}
+                    messages: mensagensParaEnviar
+})}).then(function(res) { return res.json(); }).then(function(data) {const respostaIA = data.choices[0].message.content;adicionarMensagemNaTela('ai', respostaIA);Richmond.historico.push({ role: "assistant", content: respostaIA });salvarNoNavegador();}).catch(function(err) {adicionarMensagemNaTela('ai', "Erro de Conexão: Certifique-se de que o seu Ngrok e o Ollama estão ligados no PC!");});}function adicionarMensagemNaTela(remetente, texto) {const chatBox = document.getElementById('chat-box');const msgDiv = document.createElement('div');msgDiv.className = "message " + remetente;msgDiv.innerText = texto;chatBox.appendChild(msgDiv);chatBox.scrollTop = chatBox.scrollHeight;}function salvarNoNavegador() {localStorage.setItem('polly_ai_chars', JSON.stringify(personagens));}function verificarEnter(event) {if (event.key === "Enter") enviarMensagem();}
