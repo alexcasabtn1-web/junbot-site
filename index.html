@@ -197,8 +197,7 @@
         <hr style="border: 0; border-top: 1px solid #292938; width: 100%;">
 
         <h3>Suas IAs Criadas</h3>
-        <div class="character-list" id="char-list">
-        </div>
+        <div class="character-list" id="char-list"></div>
     </div>
 
     <div class="chat-container">
@@ -207,8 +206,7 @@
             <p id="current-char-info" style="margin: 5px 0 0 0; font-size: 13px; color: var(--text-muted);"></p>
         </div>
 
-        <div class="chat-messages" id="chat-box">
-        </div>
+        <div class="chat-messages" id="chat-box"></div>
 
         <div class="chat-input-area">
             <input type="text" id="user-input" placeholder="Digite uma mensagem..." onkeypress="verificarEnter(event)">
@@ -262,30 +260,27 @@
 
             personagens.forEach(char => {
                 const card = document.createElement('div');
-                card.className = `char-card ${Richmond && Richmond.id === char.id ? 'active' : ''}`;
-                card.onclick = () => selecionarPersonagem(char.id);
-                card.innerHTML = `
-                    <h4>${char.name}</h4>
-                    <p>Modelo: ${char.model}</p>
-                `;
+                card.className = "char-card" + (Richmond && Richmond.id === char.id ? " active" : "");
+                card.onclick = function() { selecionarPersonagem(char.id); };
+                card.innerHTML = "<h4>" + char.name + "</h4><p>Modelo: " + char.model + "</p>";
                 listDiv.appendChild(card);
             });
         }
 
         function selecionarPersonagem(id) {
-            Richmond = personagens.find(c => c.id === id);
+            Richmond = personagens.find(function(c) { return c.id === id; });
             renderizarLista();
 
-            document.getElementById('current-char-title').innerText = `Conversando com: ${Richmond.name}`;
-            document.getElementById('current-char-info').innerText = `Modelo ativo: ${Richmond.model} | Instrução: "${Richmond.prompt}"`;
+            document.getElementById('current-char-title').innerText = "Conversando com: " + Richmond.name;
+            document.getElementById('current-char-info').innerText = "Modelo ativo: " + Richmond.model + ' | Instrução: "' + Richmond.prompt + '"';
 
             const chatBox = document.getElementById('chat-box');
             chatBox.innerHTML = '';
             
             if (Richmond.historico.length === 0) {
-                adicionarMensagemNaTela('ai', `Olá! Eu fui configurado para agir como: "${Richmond.prompt}". Como posso te ajudar hoje?`);
+                adicionarMensagemNaTela('ai', "Olá! Eu fui configurado para agir como: \"" + Richmond.prompt + "\". Como posso te ajudar hoje?");
             } else {
-                Richmond.historico.forEach(msg => {
+                Richmond.historico.forEach(function(msg) {
                     adicionarMensagemNaTela(msg.role === 'user' ? 'user' : 'ai', msg.content);
                 });
             }
@@ -312,7 +307,7 @@
             
             mensagensParaEnviar = mensagensParaEnviar.concat(Richmond.historico);
 
-            fetch(`${NGROK_URL}/v1/chat/completions`, {
+            fetch(NGROK_URL + "/v1/chat/completions", {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",
@@ -321,4 +316,4 @@
                 },
                 body: JSON.stringify({
                     model: Richmond.model,
-messages: mensagensParaEnviar})}).then(res => res.json()).then(data => {const respostaIA = data.choices[0].message.content;adicionarMensagemNaTela('ai', respostaIA);Richmond.historico.push({ role: "assistant", content: respostaIA });salvarNoNavegador();}).catch(err => {adicionarMensagemNaTela('ai', "Erro de Conexão: Certifique-se de que o seu Ngrok e o Ollama estão ligados no PC!");});}function adicionarMensagemNaTela(remetente, texto) {const chatBox = document.getElementById('chat-box');const msgDiv = document.createElement('div');msgDiv.className = message ${remetente};msgDiv.innerText = texto;chatBox.appendChild(msgDiv);chatBox.scrollTop = chatBox.scrollHeight;}function salvarNoNavegador() {localStorage.setItem('polly_ai_chars', JSON.stringify(personagens));}function verificarEnter(event) {if (event.key === "Enter") enviarMensagem();}
+messages: mensagensParaEnviar})}).then(function(res) { return res.json(); }).then(function(data) {const respostaIA = data.choices[0].message.content;adicionarMensagemNaTela('ai', respostaIA);Richmond.historico.push({ role: "assistant", content: respostaIA });salvarNoNavegador();}).catch(function(err) {adicionarMensagemNaTela('ai', "Erro de Conexão: Certifique-se de que o seu Ngrok e o Ollama estão ligados no PC!");});}function adicionarMensagemNaTela(remetente, texto) {const chatBox = document.getElementById('chat-box');const msgDiv = document.createElement('div');msgDiv.className = "message " + remetente;msgDiv.innerText = texto;chatBox.appendChild(msgDiv);chatBox.scrollTop = chatBox.scrollHeight;}function salvarNoNavegador() {localStorage.setItem('polly_ai_chars', JSON.stringify(personagens));}function verificarEnter(event) {if (event.key === "Enter") enviarMensagem();}
