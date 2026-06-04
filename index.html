@@ -1,43 +1,324 @@
-<!-- Cole esse bloco de conteúdo dentro do container do seu site FastAPI -->
-<div class="content">
-    <h2>🎨 Criar Imagens Via IA (100% Grátis e Ilimitado)</h2>
-    <p class="info-p">Digite a sua ideia em inglês para conseguir o melhor resultado hiper-realista:</p>
-    
-    <input type="text" id="prompt_imagem" placeholder="Ex: A futuristic cyberpunk cat, neon lights, 4k" style="width: 70%; margin-bottom: 15px;">
-    <button onclick="gerarImagemFlux()">Gerar Imagem Real 🚀</button>
-    
-    <!-- Local onde a imagem vai aparecer na tela do usuário -->
-    <div id="resultado-imagem" style="margin-top: 20px; display: none; border: 1px solid #30363d; padding: 10px; border-radius: 6px; background: #0d1117;">
-        <p style="color: #00ff96; font-weight: bold; margin-bottom: 10px;">Imagem Gerada:</p>
-        <img id="img-resultado" src="" alt="Resultado da IA" style="max-width: 100%; border-radius: 6px; border: 1px solid #00ff96;">
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Brinting0AI - Polly AI Clone</title>
+    <style>
+        :root {
+            --bg-dark: #0f0f13;
+            --panel-dark: #171721;
+            --accent: #bb86fc;
+            --text: #e1e1e6;
+            --text-muted: #8b8b9d;
+        }
+
+        body {
+            margin: 0;
+            padding: 0;
+            background-color: var(--bg-dark);
+            color: var(--text);
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            display: flex;
+            height: 100vh;
+        }
+
+        .sidebar {
+            width: 320px;
+            background-color: var(--panel-dark);
+            border-right: 1px solid #292938;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            overflow-y: auto;
+        }
+
+        h2, h3 {
+            margin: 0;
+            color: var(--accent);
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        label {
+            font-size: 14px;
+            color: var(--text-muted);
+        }
+
+        input, textarea, select {
+            background-color: var(--bg-dark);
+            border: 1px solid #292938;
+            border-radius: 6px;
+            padding: 10px;
+            color: var(--text);
+            font-size: 14px;
+            outline: none;
+        }
+
+        input:focus, textarea:focus, select:focus {
+            border-color: var(--accent);
+        }
+
+        button {
+            background-color: var(--accent);
+            color: var(--bg-dark);
+            border: none;
+            border-radius: 6px;
+            padding: 12px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+
+        button:hover {
+            opacity: 0.9;
+        }
+
+        .character-list {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            margin-top: 10px;
+        }
+
+        .char-card {
+            background-color: var(--bg-dark);
+            border: 1px solid #292938;
+            padding: 12px;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+
+        .char-card:hover, .char-card.active {
+            border-color: var(--accent);
+            background-color: #1a1a26;
+        }
+
+        .char-card h4 {
+            margin: 0 0 5px 0;
+        }
+
+        .char-card p {
+            margin: 0;
+            font-size: 12px;
+            color: var(--text-muted);
+        }
+
+        .chat-container {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            background-color: var(--bg-dark);
+        }
+
+        .chat-header {
+            background-color: var(--panel-dark);
+            padding: 20px;
+            border-bottom: 1px solid #292938;
+        }
+
+        .chat-messages {
+            flex: 1;
+            padding: 20px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .message {
+            max-width: 70%;
+            padding: 12px 16px;
+            border-radius: 8px;
+            line-height: 1.4;
+        }
+
+        .message.user {
+            background-color: var(--accent);
+            color: var(--bg-dark);
+            align-self: flex-end;
+            border-bottom-right-radius: 0;
+        }
+
+        .message.ai {
+            background-color: var(--panel-dark);
+            color: var(--text);
+            align-self: flex-start;
+            border-bottom-left-radius: 0;
+        }
+
+        .chat-input-area {
+            padding: 20px;
+            background-color: var(--panel-dark);
+            border-top: 1px solid #292938;
+            display: flex;
+            gap: 10px;
+        }
+
+        .chat-input-area input {
+            flex: 1;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="sidebar">
+        <h2>Polly AI Builder 🔑</h2>
+        <p style="font-size: 12px; color: var(--text-muted); margin: 0;">Crie personalidades para rodar no seu computador local.</p>
+        
+        <div class="form-group">
+            <label for="char-name">Nome da IA</label>
+            <input type="text" id="char-name" placeholder="Ex: Agostinho Carrara">
+        </div>
+
+        <div class="form-group">
+            <label for="char-model">Modelo do Ollama</label>
+            <select id="char-model">
+                <option value="qwen2.5:7b">qwen2.5:7b (Recomendado)</option>
+                <option value="llama3:latest">llama3:latest</option>
+                <option value="deepseek-r1:32b">deepseek-r1:32b (Lento)</option>
+                <option value="phi3:latest">phi3:latest</option>
+            </select>
+        </div>
+
+        <div class="form-group">
+            <label for="char-prompt">Instruções de Personalidade (System Prompt)</label>
+            <textarea id="char-prompt" rows="4" placeholder="Diga como a IA deve agir... Ex: Responda usando gírias de carioca e seja muito marrento."></textarea>
+        </div>
+
+        <button onclick="criarNovoPersonagem()">Criar Personagem 🤖</button>
+
+        <hr style="border: 0; border-top: 1px solid #292938; width: 100%;">
+
+        <h3>Suas IAs Criadas</h3>
+        <div class="character-list" id="char-list">
+        </div>
     </div>
-</div>
 
-<script>
-async function gerarImagemFlux() {
-    const prompt = document.getElementById('prompt_imagem').value;
-    if (!prompt) {
-        alert('Digita alguma ideia antes de mandar gerar! 🤠');
-        return;
-    }
-    
-    const divResultado = document.getElementById('resultado-imagem');
-    const tagImg = document.getElementById('img-resultado');
-    
-    // Altera o visual para avisar o usuário que a IA está trabalhando
-    divResultado.style.display = 'block';
-    tagImg.src = '';
-    tagImg.alt = 'As supermáquinas da nuvem estão desenhando seu prompt...';
-    
-    // Codifica o prompt de forma segura para não quebrar a URL
-    const promptCodificado = encodeURIComponent(prompt);
-    
-    // Monta a URL mágica que você descobriu com o modelo FLUX
-    const urlFinal = `https://pollinations.ai{promptCodificado}?model=flux&width=1024&height=1024&seed=${Math.floor(Math.random() * 100000)}&nologo=true`;
+    <div class="chat-container">
+        <div class="chat-header">
+            <h2 id="current-char-title">Selecione ou Crie uma IA ao lado</h2>
+            <p id="current-char-info" style="margin: 5px 0 0 0; font-size: 13px; color: var(--text-muted);"></p>
+        </div>
 
-    
-    // Injeta o link direto na imagem. O próprio navegador baixa e renderiza da nuvem deles!
-    tagImg.src = urlFinal;
-    tagImg.alt = 'Imagem Concluída!';
-}
-</script>
+        <div class="chat-messages" id="chat-box">
+        </div>
+
+        <div class="chat-input-area">
+            <input type="text" id="user-input" placeholder="Digite uma mensagem..." onkeypress="verificarEnter(event)">
+            <button onclick="enviarMensagem()">Enviar 🚀</button>
+        </div>
+    </div>
+
+    <script>
+        const NGROK_URL = "https://ngrok-free.dev";
+        let personagens = [];
+        let Richmond = null;
+
+        window.onload = function() {
+            const salvos = localStorage.getItem('polly_ai_chars');
+            if (salvos) {
+                personagens = JSON.parse(salvos);
+                renderizarLista();
+            }
+        };
+
+        function criarNovoPersonagem() {
+            const nameInput = document.getElementById('char-name');
+            const modelInput = document.getElementById('char-model');
+            const promptInput = document.getElementById('char-prompt');
+
+            if (!nameInput.value || !promptInput.value) {
+                alert("Por favor, preencha o nome e as instruções da IA!");
+                return;
+            }
+
+            const novoChar = {
+                id: Date.now(),
+                name: nameInput.value,
+                model: modelInput.value,
+                prompt: promptInput.value,
+                historico: []
+            };
+
+            personagens.push(novoChar);
+            salvarNoNavegador();
+            renderizarLista();
+            selecionarPersonagem(novoChar.id);
+
+            nameInput.value = '';
+            promptInput.value = '';
+        }
+
+        function renderizarLista() {
+            const listDiv = document.getElementById('char-list');
+            listDiv.innerHTML = '';
+
+            personagens.forEach(char => {
+                const card = document.createElement('div');
+                card.className = `char-card ${Richmond && Richmond.id === char.id ? 'active' : ''}`;
+                card.onclick = () => selecionarPersonagem(char.id);
+                card.innerHTML = `
+                    <h4>${char.name}</h4>
+                    <p>Modelo: ${char.model}</p>
+                `;
+                listDiv.appendChild(card);
+            });
+        }
+
+        function selecionarPersonagem(id) {
+            Richmond = personagens.find(c => c.id === id);
+            renderizarLista();
+
+            document.getElementById('current-char-title').innerText = `Conversando com: ${Richmond.name}`;
+            document.getElementById('current-char-info').innerText = `Modelo ativo: ${Richmond.model} | Instrução: "${Richmond.prompt}"`;
+
+            const chatBox = document.getElementById('chat-box');
+            chatBox.innerHTML = '';
+            
+            if (Richmond.historico.length === 0) {
+                adicionarMensagemNaTela('ai', `Olá! Eu fui configurado para agir como: "${Richmond.prompt}". Como posso te ajudar hoje?`);
+            } else {
+                Richmond.historico.forEach(msg => {
+                    adicionarMensagemNaTela(msg.role === 'user' ? 'user' : 'ai', msg.content);
+                });
+            }
+        }
+
+        function enviarMensagem() {
+            if (!Richmond) {
+                alert("Crie ou escolha um personagem ao lado primeiro!");
+                return;
+            }
+
+            const input = document.getElementById('user-input');
+            const texto = input.value.trim();
+            if (!texto) return;
+
+            input.value = '';
+
+            adicionarMensagemNaTela('user', texto);
+            Richmond.historico.push({ role: "user", content: texto });
+
+            let mensagensParaEnviar = [
+                { role: "system", content: Richmond.prompt }
+            ];
+            
+            mensagensParaEnviar = mensagensParaEnviar.concat(Richmond.historico);
+
+            fetch(`${NGROK_URL}/v1/chat/completions`, {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                    "Authorization": "Bearer bpk-d7cdc91f2a02778d-public",
+                    "ngrok-skip-browser-warning": "69420"
+                },
+                body: JSON.stringify({
+                    model: Richmond.model,
+messages: mensagensParaEnviar})}).then(res => res.json()).then(data => {const respostaIA = data.choices[0].message.content;adicionarMensagemNaTela('ai', respostaIA);Richmond.historico.push({ role: "assistant", content: respostaIA });salvarNoNavegador();}).catch(err => {adicionarMensagemNaTela('ai', "Erro de Conexão: Certifique-se de que o seu Ngrok e o Ollama estão ligados no PC!");});}function adicionarMensagemNaTela(remetente, texto) {const chatBox = document.getElementById('chat-box');const msgDiv = document.createElement('div');msgDiv.className = message ${remetente};msgDiv.innerText = texto;chatBox.appendChild(msgDiv);chatBox.scrollTop = chatBox.scrollHeight;}function salvarNoNavegador() {localStorage.setItem('polly_ai_chars', JSON.stringify(personagens));}function verificarEnter(event) {if (event.key === "Enter") enviarMensagem();}
